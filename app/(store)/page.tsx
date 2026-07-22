@@ -84,7 +84,7 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="grid auto-rows-[280px] grid-cols-1 gap-6 md:auto-rows-[360px] md:grid-cols-12">
+          <div className="grid auto-rows-auto grid-cols-1 gap-6 md:auto-rows-[360px] md:grid-cols-12">
             {drops.map((drop) => {
               const span =
                 drop.span === "wide"
@@ -96,7 +96,7 @@ export default async function HomePage() {
                 <Link
                   key={drop.id}
                   href={drop.href}
-                  className={`hover-lift group relative overflow-hidden rounded-xl bg-surface-container ${span}`}
+                  className={`hover-lift group relative min-h-[280px] overflow-hidden rounded-xl bg-surface-container md:min-h-0 ${span}`}
                 >
                   <Image
                     src={drop.image}
@@ -123,7 +123,7 @@ export default async function HomePage() {
               );
             })}
 
-            <div className="hover-lift flex flex-col justify-between rounded-xl bg-surface-container-high p-8 md:col-span-4">
+            <div className="hover-lift flex flex-col justify-between gap-8 rounded-xl bg-surface-container-high p-8 md:col-span-4">
               <div>
                 <span className="mb-4 block font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-primary">
                   The Journal
@@ -138,7 +138,7 @@ export default async function HomePage() {
               </div>
               <Link
                 href="/nosotros"
-                className="mt-8 font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-foreground transition-colors hover:text-primary"
+                className="font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-foreground transition-colors hover:text-primary"
               >
                 Leer más →
               </Link>
