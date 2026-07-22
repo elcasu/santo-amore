@@ -12,7 +12,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="relative flex min-h-[88vh] items-center">
+      <section className="relative flex min-h-[92vh] items-center">
         <div className="absolute inset-0 z-0 overflow-hidden">
           <div className="absolute inset-0 z-10 bg-gradient-to-r from-foreground/70 via-foreground/35 to-transparent" />
           <Image
