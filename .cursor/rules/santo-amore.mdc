@@ -1,0 +1,18 @@
+---
+description: Contexto y decisiones del proyecto Santo Amore
+alwaysApply: true
+---
+
+# Santo Amore
+
+Leer y respetar `docs/PROJECT.md` como fuente de contexto del proyecto.
+
+## Resumen operativo
+
+- E-commerce / marca de accesorios y home, dirección visual **Artisanal** (Stitch).
+- Stack: Next.js 16 + Tailwind 4 + Vercel. CMS previsto: Sanity. Pagos (fase 3): MercadoPago.
+- Stitch project id: `2065194152101387591`.
+- Landing actual: sitio en construcción (logo + título + ilustración + footer minimal).
+- Tokens: surface `#fff8f5`, surface-container `#f5ece7`, primary `#7e000e`, secondary `#735c00`.
+- No inventar features de e-commerce aún; no commitear API keys (Stitch vive en `~/.cursor/mcp.json`).
+- Antes de código Next, revisar `node_modules/next/dist/docs/` (breaking changes).
