@@ -10,15 +10,15 @@ Sitio web para **Santo Amore**: negocio de venta de accesorios, pulseras, collar
 
 ## Stack
 
-| Capa | Elección | Notas |
-|------|----------|--------|
-| Frontend | **Next.js 16** + React 19 + Tailwind 4 | Repo `santo-amore` |
-| Fuentes | Montserrat (display) + Inter (body) | Stitch Neo Luxury refined |
-| Hosting | **Vercel** | Ya hay deploy en producción |
-| CMS | **Sanity** (plan Free) | Studio embebido en `/studio` (`next-sanity`) |
-| Datos UI | Mocks tipados → Sanity | Flag `NEXT_PUBLIC_USE_SANITY_MOCKS` |
-| Pagos (fase 3) | MercadoPago Checkout Pro | Más adelante |
-| Diseño | **Google Stitch** | Fuente de verdad visual |
+| Capa           | Elección                               | Notas                                        |
+| -------------- | -------------------------------------- | -------------------------------------------- |
+| Frontend       | **Next.js 16** + React 19 + Tailwind 4 | Repo `santo-amore`                           |
+| Fuentes        | Montserrat (display) + Inter (body)    | Stitch Neo Luxury refined                    |
+| Hosting        | **Vercel**                             | Ya hay deploy en producción                  |
+| CMS            | **Sanity** (plan Free)                 | Studio embebido en `/studio` (`next-sanity`) |
+| Datos UI       | Mocks tipados → Sanity                 | Flag `NEXT_PUBLIC_USE_SANITY_MOCKS`          |
+| Pagos (fase 3) | MercadoPago Checkout Pro               | Más adelante                                 |
+| Diseño         | **Google Stitch**                      | Fuente de verdad visual                      |
 
 ### Repo / remoto
 
@@ -112,3 +112,4 @@ outline-variant:       #e5beb8
 - Si está seteada y `VERCEL_ENV !== production`, el `proxy.ts` redirige a `/acceso`
 - Cookie httpOnly `sa_site_gate` tras login correcto
 - Producción queda abierta (el gate se desactiva aunque exista la var por error)
+  ...
