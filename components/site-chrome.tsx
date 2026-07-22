@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const nav = [
@@ -10,12 +11,21 @@ const nav = [
 export function SiteHeader() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-outline-variant/30 bg-white/80 backdrop-blur-md">
-      <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between px-5 py-4 md:px-16">
+      <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between px-5 py-2 md:px-16">
         <Link
           href="/"
-          className="font-display text-xl font-bold tracking-tight text-primary md:text-2xl"
+          className="relative block shrink-0 transition-opacity hover:opacity-90"
+          aria-label="Santo Amore — inicio"
         >
-          Santo Amore
+          <Image
+            src="/brand/logo-header.png"
+            alt="Santo Amore"
+            width={160}
+            height={160}
+            priority
+            unoptimized
+            className="h-12 w-auto object-contain md:h-14"
+          />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">

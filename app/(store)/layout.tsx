@@ -9,7 +9,7 @@ export default function StoreLayout({
     <div className="relative flex min-h-dvh flex-col bg-background text-foreground">
       <div aria-hidden className="grain-overlay" />
       <SiteHeader />
-      <main className="relative z-10 flex-1 pt-[72px]">{children}</main>
+      <main className="relative z-10 flex-1 pt-[64px] md:pt-[72px]">{children}</main>
       <SiteFooter />
     </div>
   );
