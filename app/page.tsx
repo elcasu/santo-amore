@@ -5,7 +5,7 @@ export default function Home() {
     <div className="relative flex min-h-dvh flex-col overflow-x-hidden bg-white text-foreground">
       <div aria-hidden className="grain-overlay" />
 
-      <header className="header-fade relative z-40 flex w-full items-center justify-center px-6 py-6 md:px-20">
+      <header className="header-fade relative z-40 flex w-full items-center justify-center px-6 py-2 md:px-20">
         <Image
           src="/brand/logo-header.png"
           alt="Santo Amore"
@@ -17,13 +17,13 @@ export default function Home() {
         />
       </header>
 
-      <main className="relative z-10 flex flex-1 flex-col items-center justify-center bg-white px-6 py-16 text-center md:px-20 md:py-16">
-        <h1 className="animate-fade-rise mb-16 font-display text-[28px] font-semibold uppercase tracking-[0.2em] text-primary md:text-[32px]">
+      <main className="relative z-10 flex flex-1 flex-col items-center justify-center bg-white px-6 py-8 text-center md:px-20 md:py-16">
+        <h1 className="animate-fade-rise mb-4 font-display text-[24px] font-semibold uppercase tracking-[0.2em] text-primary md:text-[28px]">
           Sitio en Construcción
         </h1>
 
         <div
-          className="animate-fade-rise mb-16 flex flex-col items-center gap-8"
+          className="animate-fade-rise mb-4 flex flex-col items-center gap-4"
           style={{ animationDelay: "120ms" }}
         >
           <div className="w-[200px] opacity-80 transition-transform duration-700 hover:scale-105 md:w-[240px]">
@@ -48,7 +48,7 @@ export default function Home() {
             Santo Amore
           </span>
           <p className="font-sans text-xs font-semibold uppercase tracking-[0.2em] text-tertiary-muted/60">
-            © {new Date().getFullYear()} Santo Amore. All rights reserved.
+            © {new Date().getFullYear()} Santo Amore.
           </p>
         </div>
 
