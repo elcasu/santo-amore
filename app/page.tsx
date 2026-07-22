@@ -28,7 +28,7 @@ export default function Home() {
         >
           <div className="w-[200px] opacity-80 transition-transform duration-700 hover:scale-105 md:w-[240px]">
             <Image
-              src="/brand/illustration-artisan.png"
+              src="/brand/illustration-artisan-transparent.png"
               alt="Ilustración artesanal"
               width={480}
               height={480}
