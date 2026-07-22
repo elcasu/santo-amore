@@ -15,9 +15,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Santo Amore | Sitio en Construcción",
+  title: {
+    default: "Santo Amore | Artisanal Soul, Modern Grace",
+    template: "%s | Santo Amore",
+  },
   description:
-    "Santo Amore — estamos trabajando en una nueva experiencia digital artesanal.",
+    "Santo Amore — accesorios y home con estética Neo Luxury refined.",
 };
 
 export default function RootLayout({

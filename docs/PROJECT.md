@@ -6,16 +6,17 @@ Documento vivo para que cualquier chat/agente retome el hilo sin perder decision
 
 ## Qué es
 
-Sitio web para **Santo Amore**: negocio de venta de accesorios, pulseras, collares y piezas para el hogar (Accessories / Home). Marca con estética **Artisanal** (“Artisanal Soul, Modern Grace”).
+Sitio web para **Santo Amore**: negocio de venta de accesorios, pulseras, collares y piezas para el hogar (Accessories / Home). Marca con eslogan **“Artisanal Soul, Modern Grace”**. Dirección visual actual: **Neo Luxury refined** (Stitch).
 
 ## Stack
 
 | Capa | Elección | Notas |
 |------|----------|--------|
 | Frontend | **Next.js 16** + React 19 + Tailwind 4 | Repo `santo-amore` |
-| Fuentes | Montserrat (display) + Inter (body) | Según pantallas Stitch Artisanal |
+| Fuentes | Montserrat (display) + Inter (body) | Stitch Neo Luxury refined |
 | Hosting | **Vercel** | Ya hay deploy en producción |
-| CMS (plan) | **Sanity** (preferido) o Payload | Pendiente de implementar |
+| CMS | **Sanity** (plan Free) | Studio embebido en `/studio` (`next-sanity`) |
+| Datos UI | Mocks tipados → Sanity | Flag `NEXT_PUBLIC_USE_SANITY_MOCKS` |
 | Pagos (fase 3) | MercadoPago Checkout Pro | Más adelante |
 | Diseño | **Google Stitch** | Fuente de verdad visual |
 
@@ -26,67 +27,88 @@ Sitio web para **Santo Amore**: negocio de venta de accesorios, pulseras, collar
 
 ## Fases
 
-1. **Ahora — Landing “Sitio en construcción”** (en curso / casi lista para iterar)
-2. **Catálogo + páginas informativas** (CMS, productos, Nosotros, Envíos, Contacto)
-3. **E-commerce** (carrito, MercadoPago, pedidos)
+1. Landing “Sitio en construcción” — conservada en `/en-construccion`
+2. **Ahora — Catálogo + páginas con mocks Neo Luxury** (home, catálogo, detalle, CMS pages)
+3. Cablear Sanity real (`NEXT_PUBLIC_USE_SANITY_MOCKS=false`)
+4. **E-commerce** (carrito, MercadoPago, pedidos)
 
 ## Stitch (diseños)
 
 - App: [stitch.withgoogle.com](https://stitch.withgoogle.com/)
 - Proyecto: **Santo Amore Brand & E-commerce**
-- Resource: `projects/2065194152101387591`
-- Dirección visual elegida: **Artisanal**
-- Pantalla de construcción de referencia: **Sitio en Construcción (Ilustración Seleccionada)**  
-  `projects/2065194152101387591/screens/7d1a93e6f2584951a07df4e022ba09a4`
-- Logo de marca: **Santo Amore Logo (Original Match)**  
-  `projects/2065194152101387591/screens/c87d5a14d84b41eca3f47b7f98988fb8`
-- MCP Stitch en Cursor: endpoint remoto + API key en `~/.cursor/mcp.json` (no en el repo)
+- Resource / project id: `2065194152101387591`
+- Dirección visual elegida: **Neo Luxury refined**
+- Pantallas clave:
+  - Catálogo Neo-Luxury Refinado: `…/screens/ad58cf0deb8544509eb8d41294d6ac59`
+  - Detalle Neo-Luxury: `…/screens/480f043ffa964d158cdbff6fe7b1dd22`
+  - Catálogo Neo-Luxury (sección dinámica): `…/screens/72848a46a0304d96ab8b3ca6989606e3`
+- Landing Artisanal histórica: **Sitio en Construcción (Ilustración Seleccionada)**  
+  `…/screens/7d1a93e6f2584951a07df4e022ba09a4`
+- Logo: **Santo Amore Logo (Original Match)**  
+  `…/screens/c87d5a14d84b41eca3f47b7f98988fb8`
 
-Otras pantallas Artisanal útiles (más adelante): Catálogo, Brazalete Aurelia, Checkout Artisanal.
+### Stitch MCP en Cursor (workaround HTTP)
 
-## Design tokens (Stitch Artisanal)
+A veces Settings → MCP muestra `stitch` en verde pero el **agent no recibe** las tools. La API key sí responde.
+
+1. Preferir tools MCP nativas si aparecen en el catálogo del agent.
+2. Si no: HTTP JSON-RPC a `https://stitch.googleapis.com/mcp` con header `X-Goog-Api-Key` leído de `~/.cursor/mcp.json` (nunca al repo).
+3. Exports temporales en `.tmp-stitch/` (gitignored).
+
+## Design tokens (Neo Luxury refined)
 
 ```text
-background / surface:  #fff8f5
-surface-container:     #f5ece7
-primary:               #7e000e
-primary-container:     #a11d21
-secondary:             #735c00
-on-surface:            #1e1b18
-outline-variant:       #e1bebb
+background / surface:  #fbf9f8
+surface-container:     #efeded
+surface-container-high:#e9e8e7
+primary:               #b71511
+primary-container:     #db3327
+primary-fixed-dim:     #ffb4a9
+secondary:             #5f5e5e
+on-surface:            #1b1c1c
+outline-variant:       #e5beb8
 ```
 
-### UI actual (página en construcción)
+### UI actual (store Neo Luxury)
 
-- Header: fondo claro de marca (`#fff8f5` / `--surface` preferido), sombra inferior suave
-- Body: blanco o canvas claro según iteración; ilustración artesana con PNG transparente
-- Footer: `--surface-container` (`#f5ece7`)
-- Logo header: `/public/brand/logo-header.png` (RGBA transparente)
-- Ilustración: `/public/brand/illustration-artisan-transparent.png`
+- Rutas: `/` home, `/catalogo`, `/producto/[slug]`, `/nosotros`, `/envios`, `/contacto`
+- Shell: header fijo blur + footer links
+- Assets mock: `public/brand/neo-*.png|jpg`
 - Tipografía: Montserrat + Inter
-- Textos: “Sitio en Construcción” / “Estamos trabajando en ello”
-- Mantener la composición **minimalista** (evitar sumar MMXXIV/ALMA/nav del footer salvo que se pida)
+- `/en-construccion` mantiene la landing Artisanal previa
 
 ## Decisiones de producto
 
 - Priorizar **costo bajo**: Next + CMS headless + Vercel free tier antes que Shopify
-- TiendaNube / WordPress solo si el negocio necesita autonomía total sin desarrollo
 - Compra online **después** del catálogo y contenido
+- Arrancar UI con **mocks** alineados al schema Sanity; flip de flag al cablear CMS
 - Instagram opcional vía `NEXT_PUBLIC_INSTAGRAM_URL`
 
 ## Convenciones técnicas
 
-- Leer docs de Next en `node_modules/next/dist/docs/` (esta versión no es la “Next clásica”)
-- Turbopack: `turbopack.root` anclado al proyecto (hay `package-lock.json` en `~` que confunde el root)
+- Leer docs de Next en `node_modules/next/dist/docs/`
+- Turbopack: `turbopack.root` anclado al proyecto
+- Capa de datos: `lib/data/` + tipos en `lib/types/content.ts`
 - Assets de marca en `public/brand/`
 - Descargas temporales de Stitch en `.tmp-stitch/` (gitignored)
-- Para logos/PNG: si Stitch exporta damero, limpiar a RGBA real o componer sobre el color del contenedor
-- Caché de imágenes: renombrar asset o `unoptimized` + hard refresh si no se ve el cambio
+
+## Sanity (CMS)
+
+- Studio: `/studio`
+- Schema: `category`, `product`, `page`
+- Env: `.env.example` → `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `NEXT_PUBLIC_USE_SANITY_MOCKS`
+- Dataset: `production`
 
 ## Próximos pasos sugeridos
 
-1. Cerrar detalles visuales de la landing y deploy estable
-2. Definir schema Sanity (productos, categorías, páginas)
-3. Implementar catálogo Artisanal desde Stitch
-4. Páginas informativas + contacto/WhatsApp
-5. Fase MercadoPago
+1. Cargar contenido real en Sanity Studio (categorías, productos, páginas)
+2. `NEXT_PUBLIC_USE_SANITY_MOCKS=false` + CORS Vercel
+3. Pulir home/catálogo vs pantallas Stitch
+4. Fase MercadoPago
+
+## Staging password (sin plan Vercel pago)
+
+- Variable `SITE_PASSWORD` solo en el entorno Staging/Preview (nunca en Production)
+- Si está seteada y `VERCEL_ENV !== production`, el `proxy.ts` redirige a `/acceso`
+- Cookie httpOnly `sa_site_gate` tras login correcto
+- Producción queda abierta (el gate se desactiva aunque exista la var por error)
