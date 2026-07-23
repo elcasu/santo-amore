@@ -95,10 +95,12 @@ outline-variant:       #e5beb8
 ## Sanity (CMS)
 
 - Studio: `/studio`
-- Schema: `category`, `product`, `page`
+- Schema documentos: `home` (singleton), `category`, `product`, `page`
+- Schema objetos home: `heroSection`, `collectionsSection` (+ `collectionDrop` → **referencia a `product`** + label/span), `journalTeaser`, `featuredProductsSection`, `ctaLink`
 - Env: `.env.example` → `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `NEXT_PUBLIC_USE_SANITY_MOCKS`
 - Dataset: `production`
-
+- Con mocks (`USE_SANITY_MOCKS=true`): `lib/data/mocks.ts` → `mockHome`
+- Con Sanity real: editar **Home** en Studio (`documentId: home`), luego `NEXT_PUBLIC_USE_SANITY_MOCKS=false`
 ## Próximos pasos sugeridos
 
 1. Cargar contenido real en Sanity Studio (categorías, productos, páginas)

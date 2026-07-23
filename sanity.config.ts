@@ -6,6 +6,7 @@ import { structureTool } from "sanity/structure";
 
 import { apiVersion, dataset, projectId } from "./sanity/env";
 import { schemaTypes } from "./sanity/schemaTypes";
+import { structure } from "./sanity/structure";
 
 export default defineConfig({
   name: "santo-amore",
@@ -14,7 +15,7 @@ export default defineConfig({
   projectId,
   dataset,
   plugins: [
-    structureTool(),
+    structureTool({ structure }),
     visionTool({ defaultApiVersion: apiVersion }),
   ],
   schema: {

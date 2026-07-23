@@ -1,6 +1,7 @@
 import type {
   Category,
   FeaturedDrop,
+  HomePage,
   Page,
   PortableTextBlock,
   Product,
@@ -185,28 +186,56 @@ export const mockFeaturedDrops: FeaturedDrop[] = [
   {
     id: "drop-golden",
     label: "Drop 01",
-    title: "Golden Hour",
-    description: "Accesorios atemporales para la luz del atardecer.",
-    image: "/brand/neo-drop-golden.png",
-    href: "/catalogo?categoria=accesorios",
     span: "wide",
+    description: "Accesorios atemporales para la luz del atardecer.",
+    product: mockProducts[4], // Bandeja Golden Hour
   },
   {
     id: "drop-atrium",
     label: "Drop 02",
-    title: "The Atrium",
-    description: "Formas arquitectónicas y contraste sereno.",
-    image: "/brand/neo-drop-atrium.png",
-    href: "/catalogo?categoria=home",
     span: "tall",
+    description: "Formas arquitectónicas y contraste sereno.",
+    product: mockProducts[3], // Bowl Atrium
   },
   {
     id: "drop-pure",
     label: "Drop 03",
-    title: "Pure Form",
-    description: "Siluetas limpias, presencia marcada.",
-    image: "/brand/neo-drop-pure.png",
-    href: "/catalogo",
     span: "square",
+    description: "Siluetas limpias, presencia marcada.",
+    product: mockProducts[1], // Colgante Veda
   },
 ];
+
+export const mockHome: HomePage = {
+  hero: {
+    eyebrow: "The 2026 Curation",
+    title: "Artisanal Soul,",
+    titleHighlight: "Modern Grace.",
+    subtitle:
+      "Descubrí una colección donde el oficio artesanal encuentra siluetas contemporáneas. Accesorios y home con presencia.",
+    backgroundImage: {
+      src: "/brand/neo-drop-atrium.png",
+      alt: "",
+    },
+    primaryCta: { label: "Ver catálogo", href: "/catalogo" },
+    secondaryCta: { label: "Heritage", href: "/nosotros" },
+  },
+  collections: {
+    title: "Featured Collections",
+    description:
+      "Drops de temporada, curados con estética Neo Luxury refined.",
+    exploreCta: { label: "Explorar todo", href: "/catalogo" },
+    drops: mockFeaturedDrops,
+  },
+  journal: {
+    eyebrow: "The Journal",
+    title: "Behind the Seams: The Hand of the Artist",
+    body: "Oficio, materia y gesto — el alma artesanal detrás de cada pieza Santo Amore.",
+    cta: { label: "Leer más →", href: "/nosotros" },
+  },
+  featuredProducts: {
+    title: "Piezas destacadas",
+    viewAllCta: { label: "Ver todas", href: "/catalogo" },
+    products: mockProducts.filter((p) => p.featured).slice(0, 3),
+  },
+};

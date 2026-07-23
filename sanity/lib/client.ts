@@ -6,5 +6,6 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true,
+  // En local, API directo para ver Publish al instante (CDN cachea).
+  useCdn: process.env.NODE_ENV === "production",
 });
