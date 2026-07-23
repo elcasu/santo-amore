@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { ProductCard } from "@/components/product-card";
+import { getProductPurchaseState } from "@/lib/commerce";
 import { getHomePage } from "@/lib/data";
 
 export default async function HomePage() {
@@ -133,6 +134,7 @@ export default async function HomePage() {
               const product = drop.product;
               if (!product?.slug) return null;
 
+              const purchase = getProductPurchaseState(product);
               const span =
                 drop.span === "wide"
                   ? "md:col-span-8"
@@ -160,6 +162,11 @@ export default async function HomePage() {
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
                   <div className="absolute inset-0 bg-linear-to-t from-foreground/80 via-transparent to-transparent" />
+                  {purchase.badgeLabel ? (
+                    <span className="absolute left-4 top-4 z-10 rounded bg-foreground/90 px-2.5 py-1 font-sans text-[10px] font-bold uppercase tracking-[0.12em] text-white md:left-6 md:top-6">
+                      {purchase.badgeLabel}
+                    </span>
+                  ) : null}
                   <div className="absolute bottom-8 left-8 text-white">
                     {label ? (
                       <span className="mb-2 block font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-primary-fixed-dim">

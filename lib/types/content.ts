@@ -22,15 +22,28 @@ export type Category = {
   description?: string;
 };
 
+export type CommerceStatus =
+  | "available"
+  | "coming_soon"
+  | "sold_out"
+  | "made_to_order";
+
 export type Product = {
   _id: string;
   title: string;
   slug: string;
+  sku?: string;
   price?: number;
+  compareAtPrice?: number;
   description?: string;
   body?: PortableTextBlock[];
   featured?: boolean;
-  available?: boolean;
+  commerceStatus?: CommerceStatus;
+  trackInventory?: boolean;
+  stockQty?: number;
+  maxPerOrder?: number;
+  comingSoonLabel?: string;
+  leadTimeDays?: number;
   mainImage?: CmsImage;
   images?: CmsImage[];
   categories?: Category[];
@@ -52,7 +65,17 @@ export type FeaturedDrop = {
   span?: "wide" | "tall" | "square";
   product: Pick<
     Product,
-    "_id" | "title" | "slug" | "description" | "mainImage" | "collectionLabel"
+    | "_id"
+    | "title"
+    | "slug"
+    | "description"
+    | "mainImage"
+    | "collectionLabel"
+    | "commerceStatus"
+    | "trackInventory"
+    | "stockQty"
+    | "comingSoonLabel"
+    | "leadTimeDays"
   >;
 };
 

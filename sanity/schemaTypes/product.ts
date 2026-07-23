@@ -19,6 +19,12 @@ export const product = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "sku",
+      title: "SKU",
+      type: "string",
+      description: "Identificador estable para checkout / MercadoPago.",
+    }),
+    defineField({
       name: "mainImage",
       title: "Imagen principal",
       type: "image",
@@ -63,6 +69,73 @@ export const product = defineType({
       validation: (rule) => rule.min(0),
     }),
     defineField({
+      name: "compareAtPrice",
+      title: "Precio anterior (ARS)",
+      type: "number",
+      description: "Opcional: precio tachado / promo.",
+      validation: (rule) => rule.min(0),
+    }),
+    defineField({
+      name: "commerceStatus",
+      title: "Estado de comercio",
+      type: "string",
+      options: {
+        list: [
+          { title: "Disponible", value: "available" },
+          { title: "Próximamente", value: "coming_soon" },
+          { title: "Agotado", value: "sold_out" },
+          { title: "Encargo / made to order", value: "made_to_order" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "available",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "trackInventory",
+      title: "Controlar stock numérico",
+      type: "boolean",
+      description:
+        "Si está activo, la UI usa la cantidad. Si no, solo importa el estado de comercio.",
+      initialValue: false,
+      hidden: ({ parent }) =>
+        parent?.commerceStatus === "coming_soon" ||
+        parent?.commerceStatus === "made_to_order",
+    }),
+    defineField({
+      name: "stockQty",
+      title: "Cantidad en stock",
+      type: "number",
+      description: "Unidades disponibles. Con 0 se trata como agotado en la UI.",
+      validation: (rule) => rule.min(0).integer(),
+      hidden: ({ parent }) => !parent?.trackInventory,
+    }),
+    defineField({
+      name: "maxPerOrder",
+      title: "Máximo por pedido",
+      type: "number",
+      description: "Tope de unidades en carrito (útil para piezas únicas).",
+      validation: (rule) => rule.min(1).integer(),
+      hidden: ({ parent }) =>
+        parent?.commerceStatus === "coming_soon" ||
+        parent?.commerceStatus === "sold_out",
+    }),
+    defineField({
+      name: "comingSoonLabel",
+      title: "Label próximamente",
+      type: "string",
+      description: 'Ej: "Próximamente · Agosto"',
+      hidden: ({ parent }) => parent?.commerceStatus !== "coming_soon",
+    }),
+    defineField({
+      name: "leadTimeDays",
+      title: "Lead time (días)",
+      type: "number",
+      description: "Tiempo estimado de elaboración para encargos.",
+      validation: (rule) => rule.min(1).integer(),
+      hidden: ({ parent }) => parent?.commerceStatus !== "made_to_order",
+    }),
+    defineField({
       name: "collectionLabel",
       title: "Label de colección",
       type: "string",
@@ -86,27 +159,25 @@ export const product = defineType({
       type: "boolean",
       initialValue: false,
     }),
-    defineField({
-      name: "available",
-      title: "Disponible",
-      type: "boolean",
-      initialValue: true,
-    }),
   ],
   preview: {
     select: {
       title: "title",
       media: "mainImage",
-      subtitle: "price",
+      price: "price",
+      status: "commerceStatus",
     },
-    prepare({ title, media, subtitle }) {
+    prepare({ title, media, price, status }) {
+      const priceLabel =
+        typeof price === "number"
+          ? `$${price.toLocaleString("es-AR")}`
+          : undefined;
+      const statusLabel =
+        typeof status === "string" ? status.replaceAll("_", " ") : undefined;
       return {
         title,
         media,
-        subtitle:
-          typeof subtitle === "number"
-            ? `$${subtitle.toLocaleString("es-AR")}`
-            : undefined,
+        subtitle: [priceLabel, statusLabel].filter(Boolean).join(" · "),
       };
     },
   },

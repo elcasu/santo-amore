@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ProductCard } from "@/components/product-card";
+import { getProductPurchaseState } from "@/lib/commerce";
 import {
   formatPriceArs,
   getProductBySlug,
@@ -19,6 +20,7 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
+  const purchase = getProductPurchaseState(product);
   const related = (await getProducts())
     .filter((p) => p.slug !== product.slug)
     .slice(0, 3);
@@ -37,6 +39,11 @@ export default async function ProductPage({ params }: Props) {
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
+            ) : null}
+            {purchase.badgeLabel ? (
+              <span className="absolute left-4 top-4 rounded bg-foreground/90 px-3 py-1.5 font-sans text-[11px] font-bold uppercase tracking-[0.12em] text-white">
+                {purchase.badgeLabel}
+              </span>
             ) : null}
           </div>
           {product.images && product.images.length > 1 ? (
@@ -69,8 +76,24 @@ export default async function ProductPage({ params }: Props) {
             {product.title}
           </h1>
           {typeof product.price === "number" ? (
-            <p className="mb-6 font-sans text-xl text-foreground">
-              {formatPriceArs(product.price)}
+            <p
+              className={`font-sans text-xl text-foreground ${purchase.stockHint ? "mb-2" : "mb-6"}`}
+            >
+              {typeof product.compareAtPrice === "number" ? (
+                <>
+                  <span className="mr-3 text-base text-secondary line-through">
+                    {formatPriceArs(product.compareAtPrice)}
+                  </span>
+                  {formatPriceArs(product.price)}
+                </>
+              ) : (
+                formatPriceArs(product.price)
+              )}
+            </p>
+          ) : null}
+          {purchase.stockHint ? (
+            <p className="mb-6 font-sans text-sm text-secondary">
+              {purchase.stockHint}
             </p>
           ) : null}
           {product.description ? (
@@ -87,12 +110,29 @@ export default async function ProductPage({ params }: Props) {
             .
           </div>
 
-          <Link
-            href="/contacto"
-            className="inline-flex w-full items-center justify-center rounded bg-foreground px-8 py-4 font-display text-lg font-semibold text-white transition-opacity hover:opacity-90 sm:w-auto"
-          >
-            Consultar pieza
-          </Link>
+          {purchase.canPurchase ? (
+            <Link
+              href="/contacto"
+              className="inline-flex w-full items-center justify-center rounded bg-foreground px-8 py-4 font-display text-lg font-semibold text-white transition-opacity hover:opacity-90 sm:w-auto"
+            >
+              {purchase.ctaLabel}
+            </Link>
+          ) : purchase.status === "coming_soon" ? (
+            <Link
+              href="/contacto"
+              className="inline-flex w-full items-center justify-center rounded border border-foreground px-8 py-4 font-display text-lg font-semibold text-foreground transition-colors hover:bg-foreground hover:text-white sm:w-auto"
+            >
+              {purchase.ctaLabel}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="inline-flex w-full cursor-not-allowed items-center justify-center rounded bg-surface-container-high px-8 py-4 font-display text-lg font-semibold text-secondary sm:w-auto"
+            >
+              {purchase.ctaLabel}
+            </button>
+          )}
 
           {product.body?.length ? (
             <div className="mt-12 space-y-4 border-t border-outline-variant/40 pt-10">
