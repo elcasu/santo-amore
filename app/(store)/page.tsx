@@ -17,8 +17,11 @@ export default async function HomePage() {
           {source === "mock" ? (
             <>
               Estás viendo <strong>mocks</strong>. Para Sanity: poné{" "}
-              <code className="rounded bg-amber-100 px-1">USE_SANITY_MOCKS=false</code>{" "}
-              en <code className="rounded bg-amber-100 px-1">.env</code> y reiniciá{" "}
+              <code className="rounded bg-amber-100 px-1">
+                USE_SANITY_MOCKS=false
+              </code>{" "}
+              en <code className="rounded bg-amber-100 px-1">.env</code> y
+              reiniciá{" "}
               <code className="rounded bg-amber-100 px-1">yarn dev</code>.
             </>
           ) : (
@@ -136,14 +139,12 @@ export default async function HomePage() {
                   : drop.span === "tall"
                     ? "md:col-span-4 md:row-span-2"
                     : "md:col-span-4";
-              const label =
-                drop.label || product.collectionLabel || undefined;
+              const label = drop.label || product.collectionLabel || undefined;
               const description =
                 drop.description || product.description || undefined;
               const imageSrc =
                 product.mainImage?.src ?? "/brand/neo-drop-golden.png";
-              const imageAlt =
-                product.mainImage?.alt ?? product.title;
+              const imageAlt = product.mainImage?.alt ?? product.title;
 
               return (
                 <Link
@@ -158,7 +159,7 @@ export default async function HomePage() {
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-foreground/80 via-transparent to-transparent" />
                   <div className="absolute bottom-8 left-8 text-white">
                     {label ? (
                       <span className="mb-2 block font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-primary-fixed-dim">

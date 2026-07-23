@@ -18,7 +18,7 @@ export function SiteHeader() {
           aria-label="Santo Amore — inicio"
         >
           <Image
-            src="/brand/logo-header.png"
+            src="/brand/logo-santo-amore.png"
             alt="Santo Amore"
             width={160}
             height={160}
