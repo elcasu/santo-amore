@@ -59,7 +59,7 @@ export function getProductPurchaseState(
         status,
         canPurchase: true,
         badgeLabel: "Encargo",
-        ctaLabel: "Encargar",
+        ctaLabel: "Agregar encargo",
         stockHint:
           typeof product.leadTimeDays === "number"
             ? `Elaboración estimada: ${product.leadTimeDays} días`
@@ -77,7 +77,7 @@ export function getProductPurchaseState(
         status: "available",
         canPurchase: true,
         badgeLabel: null,
-        ctaLabel: "Consultar pieza",
+        ctaLabel: "Agregar al carrito",
         stockHint,
       };
     }

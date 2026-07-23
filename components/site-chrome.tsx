@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { CartHeaderButton } from "@/components/cart/cart-header-button";
+
 const nav = [
   { href: "/catalogo", label: "Colecciones" },
   { href: "/catalogo?categoria=accesorios", label: "Accesorios" },
@@ -47,9 +49,7 @@ export function SiteHeader() {
           >
             Shop
           </Link>
-          <span className="hidden font-sans text-xs font-bold uppercase tracking-[0.12em] text-secondary sm:inline">
-            Catálogo
-          </span>
+          <CartHeaderButton />
         </div>
       </div>
     </header>

@@ -2,7 +2,7 @@
 
 Documento vivo para que cualquier chat/agente retome el hilo sin perder decisiones.
 
-Última actualización: 2026-07-23
+Última actualización: 2026-07-23 (carrito MVP)
 
 ## Qué es
 
@@ -28,9 +28,9 @@ Sitio web para **Santo Amore**: negocio de venta de accesorios, pulseras, collar
 ## Fases
 
 1. Landing “Sitio en construcción” — conservada en `/en-construccion`
-2. **Ahora — Catálogo + páginas con mocks Neo Luxury** (home, catálogo, detalle, CMS pages)
+2. **Ahora — Catálogo + páginas + carrito MVP** (home, catálogo, detalle, CMS pages, drawer/`/carrito`)
 3. Cablear Sanity real (`NEXT_PUBLIC_USE_SANITY_MOCKS=false`)
-4. **E-commerce** (carrito, MercadoPago, pedidos)
+4. **Checkout** (MercadoPago, pedidos)
 
 ## Stitch (diseños)
 
@@ -71,8 +71,8 @@ outline-variant:       #e5beb8
 
 ### UI actual (store Neo Luxury)
 
-- Rutas: `/` home, `/catalogo`, `/producto/[slug]`, `/nosotros`, `/envios`, `/contacto`
-- Shell: header fijo blur + footer links
+- Rutas: `/` home, `/catalogo`, `/producto/[slug]`, `/carrito`, `/nosotros`, `/envios`, `/contacto`
+- Shell: header fijo blur + ícono carrito (drawer) + footer links
 - Assets mock: `public/brand/neo-*.png|jpg`
 - Tipografía: Montserrat + Inter
 - `/en-construccion` mantiene la landing Artisanal previa
@@ -111,7 +111,11 @@ outline-variant:       #e5beb8
 - Campos auxiliares: `sku`, `compareAtPrice`, `comingSoonLabel`, `leadTimeDays`, `maxPerOrder`
 - Sin variantes por ahora (un producto = un SKU); extensión futura vía `variantId` en el carrito
 - Reglas UI en `lib/commerce.ts` (`getProductPurchaseState`)
-- **Carrito:** vive en el cliente (`productId` + `qty`), no en Sanity
+- **Carrito:** vive en el cliente (`productId` + `qty` + snapshot), `localStorage` clave `sa_cart_v1`; no en Sanity
+  - Provider: `components/cart/cart-provider.tsx`
+  - UI: drawer desde header + página `/carrito`
+  - Add: ficha de producto (`AddToCart`); respeta `maxPerOrder` / stock
+  - Checkout aún placeholder (“Próximamente”)
 - **Checkout (fase 3):** API Next valida contra Sanity y crea preference MercadoPago
 - **Pedidos:** documento `order` opcional post-webhook (snapshot de ítems); no modelar `cart` en CMS
 
@@ -120,7 +124,7 @@ outline-variant:       #e5beb8
 1. Cargar contenido real en Sanity Studio (categorías, productos, páginas)
 2. `NEXT_PUBLIC_USE_SANITY_MOCKS=false` + CORS Vercel
 3. Pulir home/catálogo vs pantallas Stitch
-4. Fase e-commerce: cart client-side + MercadoPago + `order` post-pago
+4. Checkout: API validación + MercadoPago + `order` post-pago
 
 ## Staging password (sin plan Vercel pago)
 

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AddToCart } from "@/components/cart/add-to-cart";
 import { ProductCard } from "@/components/product-card";
 import { getProductPurchaseState } from "@/lib/commerce";
 import {
@@ -102,21 +103,8 @@ export default async function ProductPage({ params }: Props) {
             </p>
           ) : null}
 
-          <div className="mb-6 rounded-lg border border-outline-variant/50 bg-surface-container/60 p-4 text-sm text-secondary">
-            Compra online en fase 3. Por ahora consultá disponibilidad por{" "}
-            <Link href="/contacto" className="text-primary underline">
-              contacto
-            </Link>
-            .
-          </div>
-
           {purchase.canPurchase ? (
-            <Link
-              href="/contacto"
-              className="inline-flex w-full items-center justify-center rounded bg-foreground px-8 py-4 font-display text-lg font-semibold text-white transition-opacity hover:opacity-90 sm:w-auto"
-            >
-              {purchase.ctaLabel}
-            </Link>
+            <AddToCart product={product} ctaLabel={purchase.ctaLabel} />
           ) : purchase.status === "coming_soon" ? (
             <Link
               href="/contacto"
