@@ -69,7 +69,9 @@ async function guardOpsRoutes(
   const isPublic =
     pathname === "/ops/login" ||
     pathname === "/api/ops/login" ||
-    pathname === "/api/ops/logout";
+    pathname === "/api/ops/logout" ||
+    pathname === "/ops/manifest.webmanifest" ||
+    pathname === "/ops/sw.js";
 
   if (isPublic) return null;
 

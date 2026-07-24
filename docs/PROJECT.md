@@ -111,6 +111,10 @@ Mini app para el staff (sin Studio): stock, `commerceStatus` y fulfillment de pe
 - APIs: `/api/ops/*` (login/logout, products, orders) — usan `SANITY_API_WRITE_TOKEN`
 - Pedidos: `order.fulfillmentStatus` = `to_prepare` | `preparing` | `shipped` | `delivered` (aparte del `status` de pago)
 - No descuenta stock automático al pagar (manual en `/ops` por ahora)
+- **PWA instalable:** manifest + SW en `/ops` (`public/ops/manifest.webmanifest`, `public/ops/sw.js`)
+  - Android/Chrome: banner “Instalar” o menú → Instalar app
+  - iPhone/Safari: Compartir → Agregar a pantalla de inicio
+  - Abrir siempre desde el ícono (abre en modo standalone, sin barra del browser)
 
 ### Producto / disponibilidad / carrito
 

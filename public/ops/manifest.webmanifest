@@ -1,0 +1,33 @@
+{
+  "id": "/ops",
+  "name": "Santo Amore Ops",
+  "short_name": "SA Ops",
+  "description": "Stock, disponibilidad y pedidos de Santo Amore",
+  "start_url": "/ops",
+  "scope": "/ops",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fbf9f8",
+  "theme_color": "#b71511",
+  "lang": "es-AR",
+  "icons": [
+    {
+      "src": "/ops/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/ops/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/ops/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
