@@ -17,6 +17,7 @@ export async function proxy(request: NextRequest) {
   if (
     pathname === "/acceso" ||
     pathname.startsWith("/api/acceso") ||
+    pathname.startsWith("/api/mercadopago") ||
     pathname.startsWith("/_next") ||
     pathname === "/favicon.ico"
   ) {

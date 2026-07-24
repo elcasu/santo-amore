@@ -63,13 +63,12 @@ export default function CarritoPage() {
                 {formatPriceArs(subtotal)}
               </span>
             </div>
-            <button
-              type="button"
-              disabled
-              className="mb-3 flex w-full cursor-not-allowed items-center justify-center bg-surface-container-high px-6 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.12em] text-secondary"
+            <Link
+              href="/checkout"
+              className="mb-3 flex w-full items-center justify-center bg-foreground px-6 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.12em] text-white transition-opacity hover:opacity-90"
             >
-              Checkout · Próximamente
-            </button>
+              Checkout
+            </Link>
             <Link
               href="/catalogo"
               className="flex w-full items-center justify-center font-sans text-xs font-bold uppercase tracking-[0.12em] text-primary"

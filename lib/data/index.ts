@@ -108,6 +108,28 @@ const productBySlugQuery = `*[_type == "product" && slug.current == $slug][0] {
   categories[]->{ _id, title, "slug": slug.current, description }
 }`;
 
+const productByIdQuery = `*[_type == "product" && _id == $id][0] {
+  _id,
+  title,
+  "slug": slug.current,
+  sku,
+  price,
+  compareAtPrice,
+  description,
+  body,
+  featured,
+  commerceStatus,
+  trackInventory,
+  stockQty,
+  maxPerOrder,
+  comingSoonLabel,
+  leadTimeDays,
+  collectionLabel,
+  "mainImage": mainImage${imageProjection},
+  "images": images[]${imageProjection},
+  categories[]->{ _id, title, "slug": slug.current, description }
+}`;
+
 const categoriesQuery = `*[_type == "category"] | order(title asc) {
   _id, title, "slug": slug.current, description
 }`;
@@ -180,6 +202,14 @@ export async function getProductBySlug(
   }
   const client = await sanityClient();
   return client.fetch<Product | null>(productBySlugQuery, { slug });
+}
+
+export async function getProductById(id: string): Promise<Product | null> {
+  if (usingMocks()) {
+    return mockProducts.find((p) => p._id === id) ?? null;
+  }
+  const client = await sanityClient();
+  return client.fetch<Product | null>(productByIdQuery, { id });
 }
 
 export async function getFeaturedProducts(): Promise<Product[]> {

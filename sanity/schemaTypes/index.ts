@@ -8,6 +8,7 @@ import { collectionsSection } from "./objects/collectionsSection";
 import { featuredProductsSection } from "./objects/featuredProductsSection";
 import { heroSection } from "./objects/heroSection";
 import { journalTeaser } from "./objects/journalTeaser";
+import { order } from "./order";
 import { page } from "./page";
 import { product } from "./product";
 
@@ -17,6 +18,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   category,
   product,
   page,
+  order,
   // Objects
   ctaLink,
   heroSection,

@@ -2,7 +2,7 @@
 
 Documento vivo para que cualquier chat/agente retome el hilo sin perder decisiones.
 
-Última actualización: 2026-07-23 (carrito MVP)
+Última actualización: 2026-07-23 (checkout MercadoPago MVP)
 
 ## Qué es
 
@@ -17,7 +17,7 @@ Sitio web para **Santo Amore**: negocio de venta de accesorios, pulseras, collar
 | Hosting        | **Vercel**                             | Ya hay deploy en producción                  |
 | CMS            | **Sanity** (plan Free)                 | Studio embebido en `/studio` (`next-sanity`) |
 | Datos UI       | Mocks tipados → Sanity                 | Flag `NEXT_PUBLIC_USE_SANITY_MOCKS`          |
-| Pagos (fase 3) | MercadoPago Checkout Pro               | Más adelante                                 |
+| Pagos           | **MercadoPago Checkout Pro**           | Preference + webhook + `order` en Sanity     |
 | Diseño         | **Google Stitch**                      | Fuente de verdad visual                      |
 
 ### Repo / remoto
@@ -28,9 +28,9 @@ Sitio web para **Santo Amore**: negocio de venta de accesorios, pulseras, collar
 ## Fases
 
 1. Landing “Sitio en construcción” — conservada en `/en-construccion`
-2. **Ahora — Catálogo + páginas + carrito MVP** (home, catálogo, detalle, CMS pages, drawer/`/carrito`)
+2. Catálogo + páginas + carrito (home, catálogo, detalle, drawer/`/carrito`)
 3. Cablear Sanity real (`NEXT_PUBLIC_USE_SANITY_MOCKS=false`)
-4. **Checkout** (MercadoPago, pedidos)
+4. **Ahora — Checkout MercadoPago** (`/checkout`, webhook, pedidos)
 
 ## Stitch (diseños)
 
@@ -71,7 +71,7 @@ outline-variant:       #e5beb8
 
 ### UI actual (store Neo Luxury)
 
-- Rutas: `/` home, `/catalogo`, `/producto/[slug]`, `/carrito`, `/nosotros`, `/envios`, `/contacto`
+- Rutas: `/` home, `/catalogo`, `/producto/[slug]`, `/carrito`, `/checkout`, `/pedido/exito|pendiente|fallo`, `/nosotros`, `/envios`, `/contacto`
 - Shell: header fijo blur + ícono carrito (drawer) + footer links
 - Assets mock: `public/brand/neo-*.png|jpg`
 - Tipografía: Montserrat + Inter
@@ -95,9 +95,9 @@ outline-variant:       #e5beb8
 ## Sanity (CMS)
 
 - Studio: `/studio`
-- Schema documentos: `home` (singleton), `category`, `product`, `page`
+- Schema documentos: `home` (singleton), `category`, `product`, `page`, `order`
 - Schema objetos home: `heroSection`, `collectionsSection` (+ `collectionDrop` → **referencia a `product`** + label/span), `journalTeaser`, `featuredProductsSection`, `ctaLink`
-- Env: `.env.example` → `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `NEXT_PUBLIC_USE_SANITY_MOCKS`
+- Env: `.env.example` → Sanity + `SANITY_API_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL`, `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`
 - Dataset: `production`
 - Con mocks (`USE_SANITY_MOCKS=true`): `lib/data/mocks.ts` → `mockHome`
 - Con Sanity real: editar **Home** en Studio (`documentId: home`), luego `NEXT_PUBLIC_USE_SANITY_MOCKS=false`
@@ -112,19 +112,21 @@ outline-variant:       #e5beb8
 - Sin variantes por ahora (un producto = un SKU); extensión futura vía `variantId` en el carrito
 - Reglas UI en `lib/commerce.ts` (`getProductPurchaseState`)
 - **Carrito:** vive en el cliente (`productId` + `qty` + snapshot), `localStorage` clave `sa_cart_v1`; no en Sanity
-  - Provider: `components/cart/cart-provider.tsx`
+  - Provider: `components/cart/cart-provider.tsx` (`useSyncExternalStore`)
   - UI: drawer desde header + página `/carrito`
   - Add: ficha de producto (`AddToCart`); respeta `maxPerOrder` / stock
-  - Checkout aún placeholder (“Próximamente”)
-- **Checkout (fase 3):** API Next valida contra Sanity y crea preference MercadoPago
-- **Pedidos:** documento `order` opcional post-webhook (snapshot de ítems); no modelar `cart` en CMS
+- **Checkout:** `/checkout` → `POST /api/checkout` valida carrito (precios/stock server-side) → crea `order` (`pending`) en Sanity → preference MercadoPago → redirect `init_point`
+  - Retornos: `/pedido/exito` (limpia carrito), `/pedido/pendiente`, `/pedido/fallo`
+  - Webhook: `POST /api/mercadopago/webhook` (excluido del site gate); actualiza `order` a `paid`/`rejected`
+  - Envío: datos capturados; costo a coordinar (sin cálculo en MVP)
+- **Pedidos:** documento `order` en Studio (snapshot de ítems + customer/shipping + ids MP)
 
 ## Próximos pasos sugeridos
 
-1. Cargar contenido real en Sanity Studio (categorías, productos, páginas)
-2. `NEXT_PUBLIC_USE_SANITY_MOCKS=false` + CORS Vercel
-3. Pulir home/catálogo vs pantallas Stitch
-4. Checkout: API validación + MercadoPago + `order` post-pago
+1. Configurar tokens en `.env.local` / Vercel (`MERCADOPAGO_*`, `SANITY_API_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL` HTTPS en deploy)
+2. Probar checkout en sandbox MP + webhook (URL pública; localhost no recibe notificaciones)
+3. Cargar contenido real en Sanity y `USE_SANITY_MOCKS=false`
+4. Pulir home/catálogo vs Stitch; opcional: costo de envío / email de confirmación
 
 ## Staging password (sin plan Vercel pago)
 
