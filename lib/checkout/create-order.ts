@@ -27,6 +27,7 @@ export async function createPendingOrder(input: {
     _type: "order",
     orderNumber,
     status: "pending",
+    fulfillmentStatus: "to_prepare",
     externalReference,
     items: input.items.map((item) => ({
       _type: "orderItem",

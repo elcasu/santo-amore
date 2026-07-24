@@ -14,7 +14,7 @@ export const order = defineType({
     }),
     defineField({
       name: "status",
-      title: "Estado",
+      title: "Estado de pago",
       type: "string",
       options: {
         list: [
@@ -27,6 +27,21 @@ export const order = defineType({
       },
       initialValue: "pending",
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "fulfillmentStatus",
+      title: "Estado de preparación / envío",
+      type: "string",
+      options: {
+        list: [
+          { title: "Por preparar", value: "to_prepare" },
+          { title: "Preparando", value: "preparing" },
+          { title: "Enviado", value: "shipped" },
+          { title: "Entregado", value: "delivered" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "to_prepare",
     }),
     defineField({
       name: "externalReference",
@@ -123,12 +138,13 @@ export const order = defineType({
     select: {
       title: "orderNumber",
       status: "status",
+      fulfillmentStatus: "fulfillmentStatus",
       subtotal: "subtotal",
       customer: "customer.name",
     },
-    prepare: ({ title, status, subtotal, customer }) => ({
+    prepare: ({ title, status, fulfillmentStatus, subtotal, customer }) => ({
       title: title || "Pedido",
-      subtitle: `${status ?? "?"} · ${customer ?? "—"} · $${subtotal ?? 0}`,
+      subtitle: `${status ?? "?"}${fulfillmentStatus ? ` / ${fulfillmentStatus}` : ""} · ${customer ?? "—"} · $${subtotal ?? 0}`,
     }),
   },
   orderings: [

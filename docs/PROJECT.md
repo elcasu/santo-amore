@@ -2,7 +2,7 @@
 
 Documento vivo para que cualquier chat/agente retome el hilo sin perder decisiones.
 
-Última actualización: 2026-07-23 (checkout MercadoPago MVP)
+Última actualización: 2026-07-24 (app ops móvil /ops)
 
 ## Qué es
 
@@ -71,7 +71,7 @@ outline-variant:       #e5beb8
 
 ### UI actual (store Neo Luxury)
 
-- Rutas: `/` home, `/catalogo`, `/producto/[slug]`, `/carrito`, `/checkout`, `/pedido/exito|pendiente|fallo`, `/nosotros`, `/envios`, `/contacto`
+- Rutas: `/` home, `/catalogo`, `/producto/[slug]`, `/carrito`, `/checkout`, `/pedido/exito|pendiente|fallo`, `/nosotros`, `/envios`, `/contacto`, `/ops` (staff)
 - Shell: header fijo blur + ícono carrito (drawer) + footer links
 - Assets mock: `public/brand/neo-*.png|jpg`
 - Tipografía: Montserrat + Inter
@@ -97,10 +97,20 @@ outline-variant:       #e5beb8
 - Studio: `/studio`
 - Schema documentos: `home` (singleton), `category`, `product`, `page`, `order`
 - Schema objetos home: `heroSection`, `collectionsSection` (+ `collectionDrop` → **referencia a `product`** + label/span), `journalTeaser`, `featuredProductsSection`, `ctaLink`
-- Env: `.env.example` → Sanity + `SANITY_API_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL`, `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`
+- Env: `.env.example` → Sanity + `SANITY_API_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL`, `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`, `OPS_PASSWORD`
 - Dataset: `production`
 - Con mocks (`USE_SANITY_MOCKS=true`): `lib/data/mocks.ts` → `mockHome`
 - Con Sanity real: editar **Home** en Studio (`documentId: home`), luego `NEXT_PUBLIC_USE_SANITY_MOCKS=false`
+
+### Ops móvil (`/ops`)
+
+Mini app para el staff (sin Studio): stock, `commerceStatus` y fulfillment de pedidos.
+
+- Auth: `OPS_PASSWORD` + cookie httpOnly `sa_ops_gate` (independiente de `SITE_PASSWORD`)
+- Rutas: `/ops/login`, `/ops` (productos), `/ops/pedidos`
+- APIs: `/api/ops/*` (login/logout, products, orders) — usan `SANITY_API_WRITE_TOKEN`
+- Pedidos: `order.fulfillmentStatus` = `to_prepare` | `preparing` | `shipped` | `delivered` (aparte del `status` de pago)
+- No descuenta stock automático al pagar (manual en `/ops` por ahora)
 
 ### Producto / disponibilidad / carrito
 
@@ -119,14 +129,15 @@ outline-variant:       #e5beb8
   - Retornos: `/pedido/exito` (limpia carrito), `/pedido/pendiente`, `/pedido/fallo`
   - Webhook: `POST /api/mercadopago/webhook` (excluido del site gate); actualiza `order` a `paid`/`rejected`
   - Envío: datos capturados; costo a coordinar (sin cálculo en MVP)
-- **Pedidos:** documento `order` en Studio (snapshot de ítems + customer/shipping + ids MP)
+- **Pedidos:** documento `order` en Studio (snapshot de ítems + customer/shipping + ids MP + `fulfillmentStatus`)
 
 ## Próximos pasos sugeridos
 
-1. Configurar tokens en `.env.local` / Vercel (`MERCADOPAGO_*`, `SANITY_API_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL` HTTPS en deploy)
+1. Configurar tokens en `.env.local` / Vercel (`MERCADOPAGO_*`, `SANITY_API_WRITE_TOKEN`, `OPS_PASSWORD`, `NEXT_PUBLIC_SITE_URL` HTTPS en deploy)
 2. Probar checkout en sandbox MP + webhook (URL pública; localhost no recibe notificaciones)
 3. Cargar contenido real en Sanity y `USE_SANITY_MOCKS=false`
 4. Pulir home/catálogo vs Stitch; opcional: costo de envío / email de confirmación
+5. (Ops) descontar `stockQty` automático al marcar pedido `paid`
 
 ## Staging password (sin plan Vercel pago)
 
