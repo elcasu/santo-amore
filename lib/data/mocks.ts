@@ -193,7 +193,7 @@ export const mockPages: Page[] = [
         "c1",
       ),
       block(
-        "Instagram y WhatsApp serán los canales principales mientras armamos la tienda completa.",
+        "WhatsApp es el canal principal de consultas (stock, encargos y envíos). También estamos en Instagram.",
         "c2",
       ),
     ],

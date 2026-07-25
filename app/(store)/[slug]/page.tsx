@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+import { WhatsAppContactCta } from "@/components/whatsapp-contact-cta";
 import { getPageBySlug } from "@/lib/data";
 import type { PortableTextBlock } from "@/lib/types/content";
 
@@ -36,6 +37,7 @@ export default async function CmsPage({ params }: Props) {
           <PortableParagraph key={block._key} block={block} />
         ))}
       </div>
+      {slug === "contacto" ? <WhatsAppContactCta /> : null}
     </article>
   );
 }

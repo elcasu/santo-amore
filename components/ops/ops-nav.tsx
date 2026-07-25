@@ -1,12 +1,15 @@
 import Link from "next/link";
 
 import { isOpsGateEnabled } from "@/lib/ops-gate";
+import { getOpsInboxUrl } from "@/lib/whatsapp";
 
 export function OpsNav({
   active,
 }: {
   active: "products" | "orders" | "metrics";
 }) {
+  const inboxUrl = getOpsInboxUrl();
+
   return (
     <header className="sticky top-0 z-20 border-b border-outline-variant/40 bg-surface/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-lg items-center justify-between gap-3 px-4 py-3">
@@ -41,6 +44,16 @@ export function OpsNav({
           label="Métricas"
           active={active === "metrics"}
         />
+        {inboxUrl ? (
+          <a
+            href={inboxUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 rounded bg-surface-container px-3 py-2.5 text-center font-display text-sm font-semibold text-secondary transition-colors hover:text-foreground"
+          >
+            Inbox
+          </a>
+        ) : null}
       </nav>
     </header>
   );

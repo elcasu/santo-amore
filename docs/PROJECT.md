@@ -2,7 +2,7 @@
 
 Documento vivo para que cualquier chat/agente retome el hilo sin perder decisiones.
 
-Última actualización: 2026-07-24 (métricas /ops + saleSnapshot)
+Última actualización: 2026-07-25 (WhatsApp Cloud API + Chatwoot)
 
 ## Qué es
 
@@ -72,7 +72,7 @@ outline-variant:       #e5beb8
 ### UI actual (store Neo Luxury)
 
 - Rutas: `/` home, `/catalogo`, `/producto/[slug]`, `/carrito`, `/checkout`, `/pedido/exito|pendiente|fallo`, `/nosotros`, `/envios`, `/contacto`, `/ops` (staff)
-- Shell: header fijo blur + ícono carrito (drawer) + footer links
+- Shell: header fijo blur + ícono carrito (drawer) + footer links + FAB WhatsApp (si hay `NEXT_PUBLIC_WHATSAPP_PHONE`)
 - Assets mock: `public/brand/neo-*.png|jpg`
 - Tipografía: Montserrat + Inter
 - `/en-construccion` mantiene la landing Artisanal previa
@@ -83,6 +83,7 @@ outline-variant:       #e5beb8
 - Compra online **después** del catálogo y contenido
 - Arrancar UI con **mocks** alineados al schema Sanity; flip de flag al cablear CMS
 - Instagram opcional vía `NEXT_PUBLIC_INSTAGRAM_URL`
+- **WhatsApp:** Meta Cloud API + **Chatwoot** como inbox compartido (no grupo con el cliente; no número personal). Dos locales = varios agentes en la misma bandeja.
 
 ## Convenciones técnicas
 
@@ -97,7 +98,7 @@ outline-variant:       #e5beb8
 - Studio: `/studio`
 - Schema documentos: `home` (singleton), `category`, `product`, `page`, `order`, `saleSnapshot` (oculto en Studio; append-only)
 - Schema objetos home: `heroSection`, `collectionsSection` (+ `collectionDrop` → **referencia a `product`** + label/span), `journalTeaser`, `featuredProductsSection`, `ctaLink`
-- Env: `.env.example` → Sanity + `SANITY_API_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL`, `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`, `OPS_PASSWORD`
+- Env: `.env.example` → Sanity + `SANITY_API_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL`, `MERCADOPAGO_*`, `OPS_PASSWORD`, `NEXT_PUBLIC_WHATSAPP_*`, `NEXT_PUBLIC_OPS_INBOX_URL`
 - Dataset: `production`
 - Con mocks (`USE_SANITY_MOCKS=true`): `lib/data/mocks.ts` → `mockHome`
 - Con Sanity real: editar **Home** en Studio (`documentId: home`), luego `NEXT_PUBLIC_USE_SANITY_MOCKS=false`
@@ -111,6 +112,7 @@ Mini app para el staff (sin Studio): stock, `commerceStatus`, fulfillment de ped
 - APIs: `/api/ops/*` (login/logout, products, orders, metrics) — usan `SANITY_API_WRITE_TOKEN`
 - Pedidos: `order.fulfillmentStatus` = `to_prepare` | `preparing` | `shipped` | `delivered` (aparte del `status` de pago)
   - Al pasar a `shipped`/`delivered`, se setea `shippedAt` / `deliveredAt` (setIfMissing)
+- **Inbox:** link externo a Chatwoot (`NEXT_PUBLIC_OPS_INBOX_URL`) en la nav; en detalle de pedido → “Contactar en inbox” + copiar teléfono (buscar en Chatwoot). **No** abrir `wa.me` al cliente desde el celular personal del staff
 - No descuenta stock automático al pagar (manual en `/ops` por ahora)
 - **PWA instalable:** manifest + SW en `/ops` (`public/ops/manifest.webmanifest`, `public/ops/sw.js`)
   - Android/Chrome: banner “Instalar” o menú → Instalar app
@@ -149,14 +151,42 @@ Mini app para el staff (sin Studio): stock, `commerceStatus`, fulfillment de ped
 - **Pedidos:** documento `order` en Studio (snapshot de ítems + customer/shipping + ids MP + `fulfillmentStatus`); campos financieros read-only
 - **Analítica:** `saleSnapshot` append-only; métricas en `/ops/metricas`
 
+### WhatsApp (Cloud API + Chatwoot)
+
+Canal de atención 1:1 de la marca. El sitio solo enlaza; el staff atiende en Chatwoot.
+
+**Stack**
+
+- Número **dedicado** de la marca (línea/SIM; no hace falta un teléfono nuevo de uso diario).
+- Meta WhatsApp **Cloud API** + inbox **Chatwoot** (Cloud para arrancar; self-host si el free se queda corto).
+- Envs públicas: `NEXT_PUBLIC_WHATSAPP_PHONE`, `NEXT_PUBLIC_WHATSAPP_PREFILL` (opcional), `NEXT_PUBLIC_OPS_INBOX_URL`.
+- UI store: FAB + CTA en `/contacto` vía `lib/whatsapp.ts` / `components/whatsapp-*.tsx` (si no hay phone, no se muestran).
+
+**Checklist de alta (una vez)**
+
+1. Línea dedicada (móvil real que Meta verifique por SMS/voz; evitar VoIP). Chip activo; celular barato de respaldo alcanza.
+2. Meta Business Portfolio → WhatsApp Business Account → app Developers → Cloud API.
+3. Chatwoot → canal WhatsApp Cloud API (phone number id, token, verify token, webhook).
+4. Crear 2+ agentes (uno por local/turno); misma bandeja.
+5. Perfil de negocio (nombre, horarios, foto).
+6. Probar: mensaje → Chatwoot → responder desde dos dispositivos.
+
+**Runbook corto**
+
+- Responder **solo** desde Chatwoot, nunca desde WhatsApp personal.
+- Mensajes iniciados por el negocio fuera de la ventana de 24h requieren **plantilla** aprobada en Meta.
+- Alta de agente: invitar en Chatwoot (mismo inbox); no compartir la SIM del número de marca.
+- Mejoras futuras (no MVP): API Chatwoot “abrir conversación del pedido”, widget web, template “pedido despachado”.
+
 ## Próximos pasos sugeridos
 
 1. Configurar tokens en `.env.local` / Vercel (`MERCADOPAGO_*`, `SANITY_API_WRITE_TOKEN`, `OPS_PASSWORD`, `NEXT_PUBLIC_SITE_URL` HTTPS en deploy)
-2. Probar checkout en sandbox MP + webhook (URL pública; localhost no recibe notificaciones)
-3. Cargar contenido real en Sanity y `USE_SANITY_MOCKS=false`
-4. Pulir home/catálogo vs Stitch; opcional: costo de envío / email de confirmación
-5. (Ops) descontar `stockQty` automático al marcar pedido `paid`
-6. Cargar `unitCost` en productos y correr `npm run backfill:sale-snapshots` si ya hay ventas pagadas
+2. Completar alta WhatsApp (checklist arriba) y setear `NEXT_PUBLIC_WHATSAPP_PHONE` + `NEXT_PUBLIC_OPS_INBOX_URL`
+3. Probar checkout en sandbox MP + webhook (URL pública; localhost no recibe notificaciones)
+4. Cargar contenido real en Sanity y `USE_SANITY_MOCKS=false`
+5. Pulir home/catálogo vs Stitch; opcional: costo de envío / email de confirmación
+6. (Ops) descontar `stockQty` automático al marcar pedido `paid`
+7. Cargar `unitCost` en productos y correr `npm run backfill:sale-snapshots` si ya hay ventas pagadas
 
 ## Staging password (sin plan Vercel pago)
 

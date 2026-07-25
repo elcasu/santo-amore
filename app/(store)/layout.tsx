@@ -1,6 +1,7 @@
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { CartProvider } from "@/components/cart/cart-provider";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
+import { WhatsAppFab } from "@/components/whatsapp-fab";
 
 export default function StoreLayout({
   children,
@@ -17,6 +18,7 @@ export default function StoreLayout({
         </main>
         <SiteFooter />
         <CartDrawer />
+        <WhatsAppFab />
       </div>
     </CartProvider>
   );

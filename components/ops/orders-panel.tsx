@@ -2,12 +2,14 @@
 
 import { useMemo, useState, useTransition } from "react";
 
+import { OpsOrderContactActions } from "@/components/ops/ops-order-contact-actions";
 import {
   FULFILLMENT_STATUSES,
   FULFILLMENT_STATUS_LABELS,
   type FulfillmentStatus,
   type OpsOrder,
 } from "@/lib/ops/types";
+import { formatPhoneDisplay } from "@/lib/whatsapp";
 
 const PAYMENT_LABELS: Record<OpsOrder["status"], string> = {
   pending: "Pendiente",
@@ -156,12 +158,9 @@ function OrderDetail({
           {order.customer?.name || "—"}
         </p>
         {order.customer?.phone ? (
-          <a
-            href={`tel:${order.customer.phone}`}
-            className="mt-1 block font-sans text-sm text-primary underline-offset-2 hover:underline"
-          >
-            {order.customer.phone}
-          </a>
+          <p className="mt-1 font-sans text-sm text-foreground">
+            {formatPhoneDisplay(order.customer.phone) || order.customer.phone}
+          </p>
         ) : null}
         {order.customer?.email ? (
           <a
@@ -171,6 +170,7 @@ function OrderDetail({
             {order.customer.email}
           </a>
         ) : null}
+        <OpsOrderContactActions phone={order.customer?.phone} />
       </section>
 
       <section className="mt-5">
