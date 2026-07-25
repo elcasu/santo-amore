@@ -11,6 +11,7 @@ import { journalTeaser } from "./objects/journalTeaser";
 import { order } from "./order";
 import { page } from "./page";
 import { product } from "./product";
+import { saleSnapshot } from "./saleSnapshot";
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   // Documents
@@ -19,6 +20,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   product,
   page,
   order,
+  saleSnapshot,
   // Objects
   ctaLink,
   heroSection,

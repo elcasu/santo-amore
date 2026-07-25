@@ -38,6 +38,7 @@ export async function createPendingOrder(input: {
       sku: item.sku,
       qty: item.qty,
       unitPrice: item.unitPrice,
+      ...(typeof item.unitCost === "number" ? { unitCost: item.unitCost } : {}),
     })),
     customer: input.customer,
     shipping: {

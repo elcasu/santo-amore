@@ -27,6 +27,8 @@ export const order = defineType({
       },
       initialValue: "pending",
       validation: (rule) => rule.required(),
+      readOnly: true,
+      description: "Solo lo actualiza el webhook de MercadoPago.",
     }),
     defineField({
       name: "fulfillmentStatus",
@@ -44,6 +46,18 @@ export const order = defineType({
       initialValue: "to_prepare",
     }),
     defineField({
+      name: "shippedAt",
+      title: "Enviado en",
+      type: "datetime",
+      readOnly: true,
+    }),
+    defineField({
+      name: "deliveredAt",
+      title: "Entregado en",
+      type: "datetime",
+      readOnly: true,
+    }),
+    defineField({
       name: "externalReference",
       title: "Referencia externa",
       type: "string",
@@ -54,6 +68,8 @@ export const order = defineType({
       name: "items",
       title: "Ítems",
       type: "array",
+      readOnly: true,
+      description: "Snapshot al checkout. No editar: las métricas usan saleSnapshot.",
       of: [
         {
           type: "object",
@@ -73,6 +89,12 @@ export const order = defineType({
               name: "unitPrice",
               type: "number",
               title: "Precio unitario (ARS)",
+            }),
+            defineField({
+              name: "unitCost",
+              type: "number",
+              title: "Costo unitario (ARS)",
+              description: "Snapshot al checkout (puede faltar).",
             }),
           ],
           preview: {
@@ -113,6 +135,7 @@ export const order = defineType({
       title: "Subtotal (ARS)",
       type: "number",
       validation: (rule) => rule.min(0),
+      readOnly: true,
     }),
     defineField({
       name: "currency",

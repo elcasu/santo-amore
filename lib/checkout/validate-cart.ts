@@ -63,6 +63,10 @@ export async function validateCheckoutCart(
       sku: product.sku,
       qty: line.qty,
       unitPrice: product.price,
+      unitCost:
+        typeof product.unitCost === "number" && product.unitCost >= 0
+          ? product.unitCost
+          : undefined,
     });
     subtotal += product.price * line.qty;
   }

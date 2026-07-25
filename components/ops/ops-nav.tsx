@@ -2,7 +2,11 @@ import Link from "next/link";
 
 import { isOpsGateEnabled } from "@/lib/ops-gate";
 
-export function OpsNav({ active }: { active: "products" | "orders" }) {
+export function OpsNav({
+  active,
+}: {
+  active: "products" | "orders" | "metrics";
+}) {
   return (
     <header className="sticky top-0 z-20 border-b border-outline-variant/40 bg-surface/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-lg items-center justify-between gap-3 px-4 py-3">
@@ -31,6 +35,11 @@ export function OpsNav({ active }: { active: "products" | "orders" }) {
           href="/ops/pedidos"
           label="Pedidos"
           active={active === "orders"}
+        />
+        <NavTab
+          href="/ops/metricas"
+          label="Métricas"
+          active={active === "metrics"}
         />
       </nav>
     </header>

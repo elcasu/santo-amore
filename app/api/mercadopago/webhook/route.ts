@@ -3,6 +3,10 @@ import { NextResponse } from "next/server";
 import type { OrderStatus } from "@/lib/checkout/types";
 import { createPaymentApi } from "@/lib/mercadopago/client";
 import { verifyMercadoPagoSignature } from "@/lib/mercadopago/verify-signature";
+import {
+  ensureSaleSnapshotForOrder,
+  fetchOrderForSaleSnapshot,
+} from "@/lib/ops/sale-snapshot";
 import { getWriteClient } from "@/sanity/lib/write-client";
 
 function mapPaymentStatus(status: string | undefined): OrderStatus | null {
@@ -91,6 +95,20 @@ export async function POST(request: Request) {
     }
 
     await patch.commit();
+
+    // Hecho analítico inmutable: solo cuando el pago está aprobado.
+    if (nextStatus === "paid" || order.status === "paid") {
+      const fullOrder = await fetchOrderForSaleSnapshot(order._id);
+      if (fullOrder) {
+        const paidAt =
+          typeof payment.date_approved === "string"
+            ? payment.date_approved
+            : new Date().toISOString();
+        await ensureSaleSnapshotForOrder(fullOrder, paidAt);
+      } else {
+        console.warn("[mp-webhook] no se pudo leer order para saleSnapshot", order._id);
+      }
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error) {

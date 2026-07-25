@@ -53,7 +53,17 @@ export async function patchOpsOrderFulfillment(
   }
 
   const write = getWriteClient();
-  await write.patch(id).set({ fulfillmentStatus }).commit();
+  const now = new Date().toISOString();
+  let patch = write.patch(id).set({ fulfillmentStatus });
+
+  if (fulfillmentStatus === "shipped" || fulfillmentStatus === "delivered") {
+    patch = patch.setIfMissing({ shippedAt: now });
+  }
+  if (fulfillmentStatus === "delivered") {
+    patch = patch.setIfMissing({ deliveredAt: now });
+  }
+
+  await patch.commit();
 
   const updated = await getOpsOrder(id);
   if (!updated) {

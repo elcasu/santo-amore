@@ -2,7 +2,7 @@
 
 Documento vivo para que cualquier chat/agente retome el hilo sin perder decisiones.
 
-Última actualización: 2026-07-24 (app ops móvil /ops)
+Última actualización: 2026-07-24 (métricas /ops + saleSnapshot)
 
 ## Qué es
 
@@ -95,7 +95,7 @@ outline-variant:       #e5beb8
 ## Sanity (CMS)
 
 - Studio: `/studio`
-- Schema documentos: `home` (singleton), `category`, `product`, `page`, `order`
+- Schema documentos: `home` (singleton), `category`, `product`, `page`, `order`, `saleSnapshot` (oculto en Studio; append-only)
 - Schema objetos home: `heroSection`, `collectionsSection` (+ `collectionDrop` → **referencia a `product`** + label/span), `journalTeaser`, `featuredProductsSection`, `ctaLink`
 - Env: `.env.example` → Sanity + `SANITY_API_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL`, `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET`, `OPS_PASSWORD`
 - Dataset: `production`
@@ -104,17 +104,30 @@ outline-variant:       #e5beb8
 
 ### Ops móvil (`/ops`)
 
-Mini app para el staff (sin Studio): stock, `commerceStatus` y fulfillment de pedidos.
+Mini app para el staff (sin Studio): stock, `commerceStatus`, fulfillment de pedidos y métricas de negocio.
 
 - Auth: `OPS_PASSWORD` + cookie httpOnly `sa_ops_gate` (independiente de `SITE_PASSWORD`)
-- Rutas: `/ops/login`, `/ops` (productos), `/ops/pedidos`
-- APIs: `/api/ops/*` (login/logout, products, orders) — usan `SANITY_API_WRITE_TOKEN`
+- Rutas: `/ops/login`, `/ops` (productos), `/ops/pedidos`, `/ops/metricas`
+- APIs: `/api/ops/*` (login/logout, products, orders, metrics) — usan `SANITY_API_WRITE_TOKEN`
 - Pedidos: `order.fulfillmentStatus` = `to_prepare` | `preparing` | `shipped` | `delivered` (aparte del `status` de pago)
+  - Al pasar a `shipped`/`delivered`, se setea `shippedAt` / `deliveredAt` (setIfMissing)
 - No descuenta stock automático al pagar (manual en `/ops` por ahora)
 - **PWA instalable:** manifest + SW en `/ops` (`public/ops/manifest.webmanifest`, `public/ops/sw.js`)
   - Android/Chrome: banner “Instalar” o menú → Instalar app
   - iPhone/Safari: Compartir → Agregar a pantalla de inicio
   - Abrir siempre desde el ícono (abre en modo standalone, sin barra del browser)
+
+### Métricas de negocio (sin data warehouse)
+
+**Regla:** las estadísticas leen solo `saleSnapshot`, no el catálogo vivo ni campos editables del pedido. Cambiar precio/`unitCost` de un producto no reescribe el histórico.
+
+- `product.unitCost` (ARS, opcional): costo actual; se snappea al checkout en `order.items[].unitCost`
+- Al webhook MP con pago `approved`: crea `saleSnapshot` idempotente (`orderId` único) con revenue / cogs / grossProfit congelados
+- Dashboard: `/ops/metricas` → `GET /api/ops/metrics?preset=7d|30d|90d` o `from`/`to`
+- KPIs: revenue, pedidos, ticket medio, margen, ranking por producto (ROI = grossProfit/cogs), cola de fulfillment
+- Studio: `saleSnapshot` oculto; campos financieros de `order` read-only
+- Backfill de ventas ya pagadas: `npm run backfill:sale-snapshots` (requiere `tsx` + `.env.local`)
+- Sin warehouse por ahora; si aparecen ads/contabilidad/volumen alto, evaluar export a BigQuery/MotherDuck
 
 ### Producto / disponibilidad / carrito
 
@@ -122,7 +135,7 @@ Mini app para el staff (sin Studio): stock, `commerceStatus` y fulfillment de pe
 
 - `product.commerceStatus`: `available` | `coming_soon` | `sold_out` | `made_to_order`
 - Inventario mixto: `trackInventory` + `stockQty` (opcional); sin track solo importa el status
-- Campos auxiliares: `sku`, `compareAtPrice`, `comingSoonLabel`, `leadTimeDays`, `maxPerOrder`
+- Campos auxiliares: `sku`, `unitCost`, `compareAtPrice`, `comingSoonLabel`, `leadTimeDays`, `maxPerOrder`
 - Sin variantes por ahora (un producto = un SKU); extensión futura vía `variantId` en el carrito
 - Reglas UI en `lib/commerce.ts` (`getProductPurchaseState`)
 - **Carrito:** vive en el cliente (`productId` + `qty` + snapshot), `localStorage` clave `sa_cart_v1`; no en Sanity
@@ -131,9 +144,10 @@ Mini app para el staff (sin Studio): stock, `commerceStatus` y fulfillment de pe
   - Add: ficha de producto (`AddToCart`); respeta `maxPerOrder` / stock
 - **Checkout:** `/checkout` → `POST /api/checkout` valida carrito (precios/stock server-side) → crea `order` (`pending`) en Sanity → preference MercadoPago → redirect `init_point`
   - Retornos: `/pedido/exito` (limpia carrito), `/pedido/pendiente`, `/pedido/fallo`
-  - Webhook: `POST /api/mercadopago/webhook` (excluido del site gate); actualiza `order` a `paid`/`rejected`
+  - Webhook: `POST /api/mercadopago/webhook` (excluido del site gate); actualiza `order` a `paid`/`rejected` y crea `saleSnapshot` si aprobó
   - Envío: datos capturados; costo a coordinar (sin cálculo en MVP)
-- **Pedidos:** documento `order` en Studio (snapshot de ítems + customer/shipping + ids MP + `fulfillmentStatus`)
+- **Pedidos:** documento `order` en Studio (snapshot de ítems + customer/shipping + ids MP + `fulfillmentStatus`); campos financieros read-only
+- **Analítica:** `saleSnapshot` append-only; métricas en `/ops/metricas`
 
 ## Próximos pasos sugeridos
 
@@ -142,6 +156,7 @@ Mini app para el staff (sin Studio): stock, `commerceStatus` y fulfillment de pe
 3. Cargar contenido real en Sanity y `USE_SANITY_MOCKS=false`
 4. Pulir home/catálogo vs Stitch; opcional: costo de envío / email de confirmación
 5. (Ops) descontar `stockQty` automático al marcar pedido `paid`
+6. Cargar `unitCost` en productos y correr `npm run backfill:sale-snapshots` si ya hay ventas pagadas
 
 ## Staging password (sin plan Vercel pago)
 

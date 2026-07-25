@@ -34,6 +34,8 @@ export type Product = {
   slug: string;
   sku?: string;
   price?: number;
+  /** Costo actual; solo se snappea en ventas nuevas. */
+  unitCost?: number;
   compareAtPrice?: number;
   description?: string;
   body?: PortableTextBlock[];

@@ -65,7 +65,15 @@ export const product = defineType({
       name: "price",
       title: "Precio (ARS)",
       type: "number",
-      description: "Precio de referencia. El checkout llega en fase 3.",
+      description: "Precio de venta actual.",
+      validation: (rule) => rule.min(0),
+    }),
+    defineField({
+      name: "unitCost",
+      title: "Costo unitario (ARS)",
+      type: "number",
+      description:
+        "Costo actual (materiales/mano de obra). Solo se usa al crear ventas nuevas; no reescribe métricas históricas.",
       validation: (rule) => rule.min(0),
     }),
     defineField({

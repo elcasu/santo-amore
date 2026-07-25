@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Santo Amore — Guía de métricas y costos</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: #1b1c1c;
+      font-size: 10.5pt;
+      line-height: 1.45;
+      margin: 0;
+    }
+    h1 {
+      font-size: 20pt;
+      letter-spacing: 0.02em;
+      margin: 0 0 4pt;
+      color: #b71511;
+    }
+    h2 {
+      font-size: 13pt;
+      margin: 18pt 0 8pt;
+      padding-bottom: 3pt;
+      border-bottom: 1.5px solid #e5beb8;
+      color: #b71511;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 11pt;
+      margin: 12pt 0 6pt;
+      color: #1b1c1c;
+      page-break-after: avoid;
+    }
+    p { margin: 0 0 8pt; }
+    .meta {
+      color: #5f5e5e;
+      font-size: 9.5pt;
+      margin-bottom: 14pt;
+    }
+    .callout {
+      background: #fbf9f8;
+      border-left: 3px solid #b71511;
+      padding: 10pt 12pt;
+      margin: 10pt 0 14pt;
+    }
+    .callout strong { color: #b71511; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8pt 0 14pt;
+      font-size: 9.5pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #e9e8e7;
+      padding: 6pt 7pt;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #efeded;
+      font-weight: 600;
+    }
+    ul, ol { margin: 0 0 10pt; padding-left: 18pt; }
+    li { margin-bottom: 4pt; }
+    .flow {
+      background: #efeded;
+      padding: 10pt 12pt;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 8.5pt;
+      white-space: pre-wrap;
+      margin: 8pt 0 14pt;
+      line-height: 1.5;
+    }
+    .script {
+      background: #fbf9f8;
+      border: 1px solid #e5beb8;
+      padding: 10pt 12pt;
+      margin: 8pt 0;
+    }
+    footer {
+      margin-top: 20pt;
+      padding-top: 8pt;
+      border-top: 1px solid #e9e8e7;
+      font-size: 8.5pt;
+      color: #5f5e5e;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10pt;
+      margin-bottom: 10pt;
+    }
+    .box {
+      background: #fbf9f8;
+      border: 1px solid #e9e8e7;
+      padding: 8pt 10pt;
+      page-break-inside: avoid;
+    }
+    .box h3 { margin-top: 0; font-size: 10pt; }
+  </style>
+</head>
+<body>
+  <h1>Santo Amore — Guía de métricas y costos</h1>
+  <p class="meta">
+    Para el equipo · Ops (/ops/metricas) y Sanity Studio<br />
+    Negocio artesanal: producción manual + compra de materia prima
+  </p>
+
+  <div class="callout">
+    <strong>Idea clave.</strong> Las métricas no miran el precio o costo que ves hoy en el producto.
+    Cuando un cliente paga, el sistema <em>congela</em> precio y costo de esa venta.
+    Si mañana sube el hilo o el precio de una pulsera, el mes pasado no cambia.
+    Por eso el costo en Sanity hay que cargarlo al día: lo que vale la pieza en el momento de la venta es lo que queda en el histórico.
+  </div>
+
+  <h2>1. Cómo cargar costos en Sanity</h2>
+  <p>
+    <strong>Dónde:</strong> Studio → Producto → campo <strong>Costo unitario (ARS)</strong> (<code>unitCost</code>).
+    También está el <strong>Precio (ARS)</strong> de venta, que ve el cliente en la tienda.
+  </p>
+
+  <h3>Qué incluir en el costo unitario</h3>
+  <p>
+    Es cuánto te sale <strong>hacer o tener lista 1 unidad</strong> de ese producto para vender.
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Incluir en unitCost</th>
+        <th>Ejemplo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Materia prima prorrateada a 1 pieza</td>
+        <td>Cuentas, hilo, dijes, packaging de esa pieza</td>
+      </tr>
+      <tr>
+        <td>Merma razonable</td>
+        <td>Si de 10 hilos se pierde 1, repartí ese desperdicio</td>
+      </tr>
+      <tr>
+        <td>Mano de obra directa (recomendable)</td>
+        <td>“Me lleva 40 min; valoro mi hora en $X”</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th>No hace falta meterlo en unitCost (por ahora)</th>
+        <th>Por qué</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Alquiler, luz, internet</td>
+        <td>Son costos fijos del negocio, no de la pieza</td>
+      </tr>
+      <tr>
+        <td>Publicidad / ads de Instagram</td>
+        <td>Sería “ROI de marketing”; aún no está en el panel</td>
+      </tr>
+      <tr>
+        <td>Envío (hoy se coordina aparte)</td>
+        <td>No entra en el precio del ítem del checkout</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Ejemplo rápido</h3>
+  <p>
+    Pulsera: materiales $4.000 + packaging $500 + 30 min a $6.000/hora (= $3.000)
+    → <strong>unitCost ≈ $7.500</strong>.
+    Si la vendés a $22.000, ya podés hablar de margen con sentido.
+  </p>
+
+  <h3>Buenas prácticas</h3>
+  <ol>
+    <li>Actualizá <code>unitCost</code> cuando cambie la materia prima (nueva compra más cara o barata).</li>
+    <li>No edites pedidos viejos para “arreglar” números: el pasado queda quieto a propósito.</li>
+    <li>Si un producto aún no tiene costo, igual suma <strong>Revenue</strong>, pero margen y ROI salen incompletos (el panel avisa).</li>
+    <li>Ventas hechas antes de cargar costos: el margen histórico puede quedar vacío o parcial; las ventas nuevas ya usan el costo actual.</li>
+  </ol>
+
+  <h2>2. Dónde mirar las métricas</h2>
+  <p>
+    En la app Ops del celular o navegador: <strong>/ops/metricas</strong>
+    (misma contraseña que Productos y Pedidos).
+  </p>
+  <p>
+    Filtros: últimos <strong>7 / 30 / 90 días</strong> o un <strong>rango de fechas</strong>.
+    Siempre preguntate: <em>“¿De qué período estoy hablando?”</em>
+  </p>
+
+  <h2>3. Métricas de ventas</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Métrica</th>
+        <th>Qué es</th>
+        <th>Cómo usarla</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Revenue</strong></td>
+        <td>Plata cobrada por productos vendidos (pagados) en el período</td>
+        <td>“¿Cuánto facturamos?” No es ganancia neta.</td>
+      </tr>
+      <tr>
+        <td><strong>Pedidos</strong></td>
+        <td>Cantidad de órdenes pagadas</td>
+        <td>Volumen de trabajo. Muchos pedidos + ticket bajo = más preparación por peso.</td>
+      </tr>
+      <tr>
+        <td><strong>Ticket medio</strong></td>
+        <td>Revenue ÷ pedidos</td>
+        <td>¿Compran 1 pieza o varias? Útil para combos / upsell.</td>
+      </tr>
+      <tr>
+        <td><strong>COGS</strong></td>
+        <td>Suma de costos unitarios × cantidades vendidas</td>
+        <td>“Cuánto nos costó lo que vendimos” (solo si cargaste unitCost).</td>
+      </tr>
+      <tr>
+        <td><strong>Ganancia bruta</strong></td>
+        <td>Revenue − COGS</td>
+        <td>Lo que queda después de la pieza, antes de alquiler, ads o envíos.</td>
+      </tr>
+      <tr>
+        <td><strong>Margen %</strong></td>
+        <td>Ganancia bruta ÷ Revenue × 100</td>
+        <td>Salud del negocio por producto. En artesanal suele ser alto si el costo incluye materiales (y opcionalmente mano de obra).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="two-col">
+    <div class="box">
+      <h3>Revenue alto + margen bajo</h3>
+      <p>Vendés mucho pero cada pieza deja poco (precio chico o costo subió).</p>
+    </div>
+    <div class="box">
+      <h3>Revenue bajo + margen alto</h3>
+      <p>Pieza “premium” con poco volumen. El cuello puede ser producción o demanda.</p>
+    </div>
+  </div>
+  <p>
+    Si aparece el aviso de <strong>ventas sin costo</strong>, no confíes en margen ni ROI hasta completar <code>unitCost</code>.
+  </p>
+
+  <h2>4. Ranking de productos</h2>
+  <p>Ordenados por quién generó más revenue en el período.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Dato</th>
+        <th>Qué es</th>
+        <th>Acción típica</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Unidades</strong></td>
+        <td>Cuántas se vendieron</td>
+        <td>Qué producir / qué materia prima reponer</td>
+      </tr>
+      <tr>
+        <td><strong>Revenue</strong></td>
+        <td>Plata de ese SKU</td>
+        <td>Qué “mueve la caja”</td>
+      </tr>
+      <tr>
+        <td><strong>Margen %</strong></td>
+        <td>% de la venta que queda después del costo</td>
+        <td>¿Conviene seguir a este precio?</td>
+      </tr>
+      <tr>
+        <td><strong>ROI</strong></td>
+        <td>Ganancia bruta ÷ COGS</td>
+        <td>“Por cada $1 de costo de pieza, ¿cuánto gané?” Ej.: ROI 150% = $1,50 de ganancia por cada $1 de costo. <em>No es ROI de publicidad.</em></td>
+      </tr>
+      <tr>
+        <td><strong>Alto volumen / margen bajo</strong></td>
+        <td>Se vende mucho y deja poco (o falta costo)</td>
+        <td>Revisar precio o materiales; a veces subir precio o simplificar receta</td>
+      </tr>
+      <tr>
+        <td><strong>Falta costo en el snapshot</strong></td>
+        <td>Esa venta se congeló sin unitCost</td>
+        <td>Completar costo en el producto para <em>futuras</em> ventas</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    En producción manual, el ranking dice <strong>dónde poner horas de taller</strong>.
+    Mucho revenue + buen margen = prioridad.
+    Mucho volumen + mal margen = te come tiempo y deja poco.
+  </p>
+
+  <h2>5. Operaciones (no es plata)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Métrica</th>
+        <th>Qué es</th>
+        <th>Cómo gestionarla</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Por preparar / Preparando / Enviados / Entregados</strong></td>
+        <td>Cola actual de pedidos pagados</td>
+        <td>Si “por preparar” crece, hay cuello de taller (no de ventas).</td>
+      </tr>
+      <tr>
+        <td><strong>Prom. a envío / a entrega</strong></td>
+        <td>Tiempo desde el pago hasta marcar enviado o entregado</td>
+        <td>Expectativa del cliente + capacidad real. Si sube: más demanda de la que producen, o faltan materiales.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    Se actualiza desde la pestaña <strong>Pedidos</strong> al cambiar el estado
+    (por preparar → preparando → enviado → entregado).
+  </p>
+
+  <h2>6. El ciclo costos ↔ ventas</h2>
+  <div class="flow">Comprá materia prima
+  → Calculá costo por pieza
+  → Cargá unitCost + Precio en Sanity
+  → Se vende y paga (MercadoPago)
+  → El sistema congela precio/costo de ESA venta
+  → En Métricas ves revenue, margen y ROI del período
+  → Decidís: ¿reponer ese SKU? ¿subir precio? ¿cambiar materiales?</div>
+
+  <div class="two-col">
+    <div class="box">
+      <h3>Lo que el panel sí responde</h3>
+      <ul>
+        <li>¿Qué piezas pagan el taller?</li>
+        <li>¿Vendemos por debajo del costo real?</li>
+        <li>¿El volumen ahoga la producción?</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Lo que todavía no responde</h3>
+      <ul>
+        <li>Ganancia neta del mes (alquiler, fees MP, envíos, ads)</li>
+        <li>ROI de Instagram / Meta</li>
+        <li>Stock de insumos a granel (el costo es por producto terminado)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>7. Script de 2 minutos (para capacitar)</h2>
+  <div class="script">
+    <ol>
+      <li>En cada producto cargás el <strong>precio de venta</strong> y el <strong>costo de hacer una unidad</strong> (materiales +, si querés, tu tiempo).</li>
+      <li>Cuando alguien paga, eso <strong>queda grabado</strong>; si después cambia el costo del hilo, el mes pasado no se mueve.</li>
+      <li>En <strong>Métricas</strong> mirás cuánto vendiste, cuánto te costó lo vendido, y qué producto conviene priorizar en el taller.</li>
+      <li>Si falta el costo, vas a ver facturación pero <strong>no un margen confiable</strong>.</li>
+    </ol>
+  </div>
+
+  <footer>
+    Santo Amore · Documento interno de operaciones · Generado para uso con /ops/metricas y Sanity Studio.
+    Fuente de verdad analítica: saleSnapshot (congelado al pago). El catálogo editable no reescribe el histórico.
+  </footer>
+</body>
+</html>

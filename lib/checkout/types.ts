@@ -24,6 +24,8 @@ export type ValidatedOrderItem = {
   sku?: string;
   qty: number;
   unitPrice: number;
+  /** Snapshot del costo al checkout; undefined si el producto no tenía unitCost. */
+  unitCost?: number;
 };
 
 export type OrderStatus = "pending" | "paid" | "rejected" | "cancelled";

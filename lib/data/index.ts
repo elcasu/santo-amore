@@ -114,6 +114,7 @@ const productByIdQuery = `*[_type == "product" && _id == $id][0] {
   "slug": slug.current,
   sku,
   price,
+  unitCost,
   compareAtPrice,
   description,
   body,
