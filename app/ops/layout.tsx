@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 
 import { OpsInstallBanner } from "@/components/ops/ops-install-banner";
+import { OpsSpecialDaysBanner } from "@/components/ops/ops-special-days-banner";
 import { OpsServiceWorkerRegister } from "@/components/ops/ops-sw-register";
 
 export const metadata: Metadata = {
@@ -33,6 +34,7 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <OpsServiceWorkerRegister />
+      <OpsSpecialDaysBanner />
       <OpsInstallBanner />
       {children}
     </div>

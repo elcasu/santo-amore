@@ -109,9 +109,14 @@ Mini app para el staff (sin Studio): stock, `commerceStatus`, fulfillment de ped
 
 - Auth: `OPS_PASSWORD` + cookie httpOnly `sa_ops_gate` (independiente de `SITE_PASSWORD`)
 - Rutas: `/ops/login`, `/ops` (productos), `/ops/pedidos`, `/ops/metricas`
-- APIs: `/api/ops/*` (login/logout, products, orders, metrics) — usan `SANITY_API_WRITE_TOKEN`
+- APIs: `/api/ops/*` (login/logout, products, orders, metrics, special-days) — usan `SANITY_API_WRITE_TOKEN`
 - Pedidos: `order.fulfillmentStatus` = `to_prepare` | `preparing` | `shipped` | `delivered` (aparte del `status` de pago)
   - Al pasar a `shipped`/`delivered`, se setea `shippedAt` / `deliveredAt` (setIfMissing)
+- **Días especiales:** singleton Sanity `opsSpecialDays` (Studio → “Ops · Días especiales”)
+  - Lista AR (Madre, Navidad, San Valentín, Amigo, Mujer, Niño, Padre, Reyes, Abuelos, Hermanos, Primos…)
+  - Anticipación configurable (`defaultLeadDays`, default 7; override por ítem)
+  - Fechas fijas (mes+día) o móviles (N-ésimo día de la semana del mes)
+  - Banner in-app en `/ops` vía `GET /api/ops/special-days` cuando hoy entra en la ventana; dismiss por sesión
 - **Inbox:** link externo a Chatwoot (`NEXT_PUBLIC_OPS_INBOX_URL`) en la nav; en detalle de pedido → “Contactar en inbox” + copiar teléfono (buscar en Chatwoot). **No** abrir `wa.me` al cliente desde el celular personal del staff
 - No descuenta stock automático al pagar (manual en `/ops` por ahora)
 - **PWA instalable:** manifest + SW en `/ops` (`public/ops/manifest.webmanifest`, `public/ops/sw.js`)
