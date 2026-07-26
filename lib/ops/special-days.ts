@@ -1,6 +1,7 @@
 import { client } from "@/sanity/lib/client";
 
 import {
+  DEFAULT_PUSH_REPEAT_DAYS,
   DEFAULT_SPECIAL_DAYS,
   DEFAULT_SPECIAL_DAYS_LEAD,
   type SpecialDayPriority,
@@ -14,6 +15,7 @@ export type CivilDate = { y: number; m: number; d: number };
 
 export type OpsSpecialDayItem = SpecialDaySeed & {
   leadDays?: number;
+  pushRepeatDays?: number;
 };
 
 export type OpsSpecialDayAlert = {
@@ -24,16 +26,25 @@ export type OpsSpecialDayAlert = {
   date: string;
   daysUntil: number;
   leadDays: number;
+  pushRepeatDays: number;
   isToday: boolean;
+};
+
+export type SpecialDaysConfig = {
+  defaultLeadDays: number;
+  pushRepeatDays: number;
+  items: OpsSpecialDayItem[];
 };
 
 type SanityDoc = {
   defaultLeadDays?: number;
+  pushRepeatDays?: number;
   items?: OpsSpecialDayItem[];
 };
 
 const query = `*[_type == "opsSpecialDays" && _id == "opsSpecialDays"][0]{
   defaultLeadDays,
+  pushRepeatDays,
   items[]{
     key,
     title,
@@ -45,6 +56,7 @@ const query = `*[_type == "opsSpecialDays" && _id == "opsSpecialDays"][0]{
     weekday,
     nth,
     leadDays,
+    pushRepeatDays,
     hint
   }
 }`;
@@ -145,14 +157,19 @@ function normalizeItem(raw: OpsSpecialDayItem): OpsSpecialDayItem | null {
     weekday: raw.weekday,
     nth: raw.nth,
     leadDays: raw.leadDays,
+    pushRepeatDays: raw.pushRepeatDays,
     hint: raw.hint,
   };
 }
 
-export async function fetchSpecialDaysConfig(): Promise<{
-  defaultLeadDays: number;
-  items: OpsSpecialDayItem[];
-}> {
+function normalizeRepeatDays(value: unknown, fallback: number): number {
+  if (typeof value === "number" && Number.isInteger(value) && value >= 1) {
+    return value;
+  }
+  return fallback;
+}
+
+export async function fetchSpecialDaysConfig(): Promise<SpecialDaysConfig> {
   try {
     const doc = await client.fetch<SanityDoc | null>(query);
     if (doc?.items?.length) {
@@ -164,6 +181,10 @@ export async function fetchSpecialDaysConfig(): Promise<{
           typeof doc.defaultLeadDays === "number" && doc.defaultLeadDays >= 0
             ? doc.defaultLeadDays
             : DEFAULT_SPECIAL_DAYS_LEAD,
+        pushRepeatDays: normalizeRepeatDays(
+          doc.pushRepeatDays,
+          DEFAULT_PUSH_REPEAT_DAYS,
+        ),
         items,
       };
     }
@@ -173,12 +194,29 @@ export async function fetchSpecialDaysConfig(): Promise<{
 
   return {
     defaultLeadDays: DEFAULT_SPECIAL_DAYS_LEAD,
+    pushRepeatDays: DEFAULT_PUSH_REPEAT_DAYS,
     items: DEFAULT_SPECIAL_DAYS.map((item) => ({ ...item })),
   };
 }
 
+/**
+ * Primera push al entrar en la ventana (daysUntil === leadDays),
+ * luego cada `repeatDays`, e incluye el día del evento.
+ */
+export function shouldSendPushToday(
+  daysUntil: number,
+  leadDays: number,
+  repeatDays: number,
+): boolean {
+  if (daysUntil < 0 || daysUntil > leadDays) return false;
+  if (daysUntil === 0) return true;
+  const daysIntoWindow = leadDays - daysUntil;
+  const repeat = Math.max(1, repeatDays);
+  return daysIntoWindow % repeat === 0;
+}
+
 export function resolveActiveAlerts(
-  config: { defaultLeadDays: number; items: OpsSpecialDayItem[] },
+  config: SpecialDaysConfig,
   today = todayInArgentina(),
 ): OpsSpecialDayAlert[] {
   const alerts: OpsSpecialDayAlert[] = [];
@@ -192,6 +230,10 @@ export function resolveActiveAlerts(
       typeof item.leadDays === "number" && item.leadDays >= 0
         ? item.leadDays
         : config.defaultLeadDays;
+    const pushRepeatDays = normalizeRepeatDays(
+      item.pushRepeatDays,
+      config.pushRepeatDays,
+    );
     const daysUntil = daysBetween(today, next);
     if (daysUntil < 0 || daysUntil > leadDays) continue;
 
@@ -203,6 +245,7 @@ export function resolveActiveAlerts(
       date: formatCivilDate(next),
       daysUntil,
       leadDays,
+      pushRepeatDays,
       isToday: daysUntil === 0,
     });
   }
@@ -216,6 +259,15 @@ export function resolveActiveAlerts(
   });
 
   return alerts;
+}
+
+export function resolvePushAlertsForToday(
+  config: SpecialDaysConfig,
+  today = todayInArgentina(),
+): OpsSpecialDayAlert[] {
+  return resolveActiveAlerts(config, today).filter((alert) =>
+    shouldSendPushToday(alert.daysUntil, alert.leadDays, alert.pushRepeatDays),
+  );
 }
 
 export async function getOpsSpecialDayAlerts(): Promise<OpsSpecialDayAlert[]> {

@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/ops/cron/special-days-push",
+      "schedule": "0 14 * * *"
+    }
+  ]
+}

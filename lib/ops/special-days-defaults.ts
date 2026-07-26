@@ -17,6 +17,8 @@ export type SpecialDaySeed = {
 };
 
 export const DEFAULT_SPECIAL_DAYS_LEAD = 7;
+/** Cada cuántos días reenviar push dentro de la ventana (1 = todos los días). */
+export const DEFAULT_PUSH_REPEAT_DAYS = 2;
 
 export const DEFAULT_SPECIAL_DAYS: SpecialDaySeed[] = [
   {

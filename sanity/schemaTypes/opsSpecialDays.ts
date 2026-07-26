@@ -1,6 +1,7 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 
 import {
+  DEFAULT_PUSH_REPEAT_DAYS,
   DEFAULT_SPECIAL_DAYS,
   DEFAULT_SPECIAL_DAYS_LEAD,
 } from "@/lib/ops/special-days-defaults";
@@ -22,10 +23,19 @@ export const opsSpecialDays = defineType({
       name: "defaultLeadDays",
       title: "Anticipación por defecto (días)",
       description:
-        "Cuántos días antes avisar en la app Ops. Cada ítem puede sobreescribirlo.",
+        "Cuántos días antes avisar (banner + primera push). Cada ítem puede sobreescribirlo.",
       type: "number",
       initialValue: DEFAULT_SPECIAL_DAYS_LEAD,
       validation: (rule) => rule.required().integer().min(0).max(60),
+    }),
+    defineField({
+      name: "pushRepeatDays",
+      title: "Reenviar push cada (días)",
+      description:
+        "Tras la primera push (al entrar en la ventana), vuelve a avisar cada N días hasta el evento. 1 = todos los días.",
+      type: "number",
+      initialValue: DEFAULT_PUSH_REPEAT_DAYS,
+      validation: (rule) => rule.required().integer().min(1).max(30),
     }),
     defineField({
       name: "items",
@@ -188,6 +198,13 @@ export const opsSpecialDays = defineType({
               description: "Vacío = usar el default del documento",
               type: "number",
               validation: (rule) => rule.integer().min(0).max(60),
+            }),
+            defineField({
+              name: "pushRepeatDays",
+              title: "Reenviar push cada (override)",
+              description: "Vacío = usar el default del documento",
+              type: "number",
+              validation: (rule) => rule.integer().min(1).max(30),
             }),
             defineField({
               name: "hint",

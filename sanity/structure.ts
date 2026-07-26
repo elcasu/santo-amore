@@ -1,6 +1,12 @@
 import type { StructureResolver } from "sanity/structure";
 
-const HIDDEN_TYPES = new Set(["home", "saleSnapshot", "opsSpecialDays"]);
+const HIDDEN_TYPES = new Set([
+  "home",
+  "saleSnapshot",
+  "opsSpecialDays",
+  "opsPushSubscription",
+  "opsPushReceipt",
+]);
 
 export const structure: StructureResolver = (S) =>
   S.list()

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 
 import { OpsInstallBanner } from "@/components/ops/ops-install-banner";
+import { OpsPushPrompt } from "@/components/ops/ops-push-prompt";
 import { OpsSpecialDaysBanner } from "@/components/ops/ops-special-days-banner";
 import { OpsServiceWorkerRegister } from "@/components/ops/ops-sw-register";
 
@@ -35,6 +36,7 @@ export default function OpsLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-dvh bg-background text-foreground">
       <OpsServiceWorkerRegister />
       <OpsSpecialDaysBanner />
+      <OpsPushPrompt />
       <OpsInstallBanner />
       {children}
     </div>

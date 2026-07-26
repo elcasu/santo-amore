@@ -50,6 +50,9 @@ async function guardOpsRoutes(
   pathname: string,
 ): Promise<NextResponse | null> {
   if (!isOpsGateEnabled()) {
+    if (pathname === "/api/ops/cron/special-days-push") {
+      return null;
+    }
     if (pathname.startsWith("/ops") || pathname.startsWith("/api/ops")) {
       if (pathname.startsWith("/api/ops")) {
         return NextResponse.json(
@@ -70,6 +73,7 @@ async function guardOpsRoutes(
     pathname === "/ops/login" ||
     pathname === "/api/ops/login" ||
     pathname === "/api/ops/logout" ||
+    pathname === "/api/ops/cron/special-days-push" ||
     pathname === "/ops/manifest.webmanifest" ||
     pathname === "/ops/sw.js";
 

@@ -8,6 +8,8 @@ import { collectionsSection } from "./objects/collectionsSection";
 import { featuredProductsSection } from "./objects/featuredProductsSection";
 import { heroSection } from "./objects/heroSection";
 import { journalTeaser } from "./objects/journalTeaser";
+import { opsPushReceipt } from "./opsPushReceipt";
+import { opsPushSubscription } from "./opsPushSubscription";
 import { opsSpecialDays } from "./opsSpecialDays";
 import { order } from "./order";
 import { page } from "./page";
@@ -23,6 +25,8 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   order,
   saleSnapshot,
   opsSpecialDays,
+  opsPushSubscription,
+  opsPushReceipt,
   // Objects
   ctaLink,
   heroSection,

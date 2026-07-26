@@ -109,14 +109,19 @@ Mini app para el staff (sin Studio): stock, `commerceStatus`, fulfillment de ped
 
 - Auth: `OPS_PASSWORD` + cookie httpOnly `sa_ops_gate` (independiente de `SITE_PASSWORD`)
 - Rutas: `/ops/login`, `/ops` (productos), `/ops/pedidos`, `/ops/metricas`
-- APIs: `/api/ops/*` (login/logout, products, orders, metrics, special-days) — usan `SANITY_API_WRITE_TOKEN`
+- APIs: `/api/ops/*` (login/logout, products, orders, metrics, special-days, push, cron) — usan `SANITY_API_WRITE_TOKEN`
 - Pedidos: `order.fulfillmentStatus` = `to_prepare` | `preparing` | `shipped` | `delivered` (aparte del `status` de pago)
   - Al pasar a `shipped`/`delivered`, se setea `shippedAt` / `deliveredAt` (setIfMissing)
-- **Días especiales:** singleton Sanity `opsSpecialDays` (Studio → “Ops · Días especiales”)
+- **Días especiales:** singleton Sanity `opsSpecialDays` (Studio → “Días especiales”)
   - Lista AR (Madre, Navidad, San Valentín, Amigo, Mujer, Niño, Padre, Reyes, Abuelos, Hermanos, Primos…)
   - Anticipación configurable (`defaultLeadDays`, default 7; override por ítem)
+  - Reenvío push (`pushRepeatDays`, default 2; override por ítem): 1ª push al entrar en la ventana, luego cada N días + el día del evento
   - Fechas fijas (mes+día) o móviles (N-ésimo día de la semana del mes)
   - Banner in-app en `/ops` vía `GET /api/ops/special-days` cuando hoy entra en la ventana; dismiss por sesión
+  - **Web Push:** opt-in en `/ops` (`OpsPushPrompt`); suscripciones en `opsPushSubscription`; recibos idempotentes `opsPushReceipt`
+  - Cron Vercel diario `0 14 * * *` UTC (~11:00 AR) → `GET /api/ops/cron/special-days-push` con `Authorization: Bearer $CRON_SECRET`
+  - Env: `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `CRON_SECRET` (`npx web-push generate-vapid-keys`)
+  - iOS: solo con la PWA agregada a inicio (Safari 16.4+)
 - **Inbox:** link externo a Chatwoot (`NEXT_PUBLIC_OPS_INBOX_URL`) en la nav; en detalle de pedido → “Contactar en inbox” + copiar teléfono (buscar en Chatwoot). **No** abrir `wa.me` al cliente desde el celular personal del staff
 - No descuenta stock automático al pagar (manual en `/ops` por ahora)
 - **PWA instalable:** manifest + SW en `/ops` (`public/ops/manifest.webmanifest`, `public/ops/sw.js`)
