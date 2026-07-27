@@ -46,6 +46,42 @@ function clearDismissed() {
   }
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const id = window.setTimeout(() => reject(new Error(message)), ms);
+    promise.then(
+      (value) => {
+        window.clearTimeout(id);
+        resolve(value);
+      },
+      (error: unknown) => {
+        window.clearTimeout(id);
+        reject(error);
+      },
+    );
+  });
+}
+
+async function ensureOpsServiceWorker(): Promise<ServiceWorkerRegistration> {
+  const existing = await navigator.serviceWorker.getRegistration("/ops/");
+  if (existing?.active) return existing;
+
+  const reg = await withTimeout(
+    navigator.serviceWorker.register("/ops/sw.js", { scope: "/ops/" }),
+    8_000,
+    "Timeout registrando el service worker",
+  );
+
+  // `.ready` puede colgarse si nunca hay SW activo; limitar espera.
+  await withTimeout(
+    navigator.serviceWorker.ready,
+    8_000,
+    "Timeout esperando service worker activo",
+  );
+
+  return reg;
+}
+
 /**
  * Opt-in a Web Push para avisos de días especiales (requiere SW + VAPID).
  * Muestra estado también cuando no está disponible (evita “desaparecer” en silencio).
@@ -78,7 +114,11 @@ export function OpsPushPrompt() {
     }
 
     try {
-      const vapidRes = await fetch("/api/ops/push/vapid");
+      const vapidRes = await withTimeout(
+        fetch("/api/ops/push/vapid"),
+        10_000,
+        "Timeout consultando VAPID",
+      );
       if (!alive()) return;
       if (vapidRes.status === 401) {
         setState("unavailable");
@@ -103,7 +143,7 @@ export function OpsPushPrompt() {
         return;
       }
 
-      const reg = await navigator.serviceWorker.ready;
+      const reg = await ensureOpsServiceWorker();
       if (!alive()) return;
       const existing = await reg.pushManager.getSubscription();
       if (!alive()) return;
@@ -150,7 +190,11 @@ export function OpsPushPrompt() {
       console.warn("[ops] push init", error);
       if (!alive()) return;
       setState("unavailable");
-      setDetail("Error al inicializar push.");
+      setDetail(
+        error instanceof Error
+          ? error.message
+          : "Error al inicializar push.",
+      );
     }
   }, []);
 
@@ -188,7 +232,7 @@ export function OpsPushPrompt() {
         return;
       }
 
-      const reg = await navigator.serviceWorker.ready;
+      const reg = await ensureOpsServiceWorker();
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(
