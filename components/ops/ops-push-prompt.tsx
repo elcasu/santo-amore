@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type PromptState =
-  | "hidden"
   | "loading"
   | "prompt"
   | "subscribed"
   | "unsupported"
   | "denied"
-  | "unavailable";
+  | "unavailable"
+  | "hidden";
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -38,84 +38,138 @@ function markDismissed() {
   }
 }
 
+function clearDismissed() {
+  try {
+    localStorage.removeItem("sa_ops_push_dismissed");
+  } catch {
+    /* ignore */
+  }
+}
+
 /**
  * Opt-in a Web Push para avisos de días especiales (requiere SW + VAPID).
+ * Muestra estado también cuando no está disponible (evita “desaparecer” en silencio).
  */
 export function OpsPushPrompt() {
   const [state, setState] = useState<PromptState>("loading");
+  const [detail, setDetail] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  const refresh = useCallback(async (signal?: { cancelled: boolean }) => {
+    const alive = () => !signal?.cancelled;
 
-    async function init() {
-      if (typeof window === "undefined") return;
-      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-        if (!cancelled) setState("unsupported");
-        return;
-      }
-      if (!window.isSecureContext) {
-        if (!cancelled) setState("unsupported");
-        return;
-      }
+    // Evita setState síncrono en el effect (regla react-hooks/set-state-in-effect).
+    await Promise.resolve();
+    if (!alive()) return;
 
-      try {
-        const vapidRes = await fetch("/api/ops/push/vapid");
-        if (!vapidRes.ok) {
-          if (!cancelled) setState("unavailable");
-          return;
-        }
-        const vapid = (await vapidRes.json()) as {
-          configured?: boolean;
-          publicKey?: string | null;
-        };
-        if (!vapid.configured || !vapid.publicKey) {
-          if (!cancelled) setState("unavailable");
-          return;
-        }
-
-        const reg = await navigator.serviceWorker.ready;
-        const existing = await reg.pushManager.getSubscription();
-        if (existing) {
-          // Re-sincronizar endpoint por si el backend se limpió.
-          await fetch("/api/ops/push/subscribe", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              endpoint: existing.endpoint,
-              keys: {
-                p256dh: existing.toJSON().keys?.p256dh,
-                auth: existing.toJSON().keys?.auth,
-              },
-            }),
-          });
-          if (!cancelled) setState("subscribed");
-          return;
-        }
-
-        if (Notification.permission === "denied") {
-          if (!cancelled) setState("denied");
-          return;
-        }
-
-        if (wasDismissed()) {
-          if (!cancelled) setState("hidden");
-          return;
-        }
-
-        if (!cancelled) setState("prompt");
-      } catch {
-        if (!cancelled) setState("unavailable");
-      }
+    if (typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      if (!alive()) return;
+      setState("unsupported");
+      setDetail(
+        "Este navegador no soporta Web Push. En iPhone: agregá Ops a inicio y abrila desde el ícono.",
+      );
+      return;
+    }
+    if (!window.isSecureContext) {
+      if (!alive()) return;
+      setState("unsupported");
+      setDetail("Hace falta HTTPS.");
+      return;
     }
 
-    void init();
-    return () => {
-      cancelled = true;
-    };
+    try {
+      const vapidRes = await fetch("/api/ops/push/vapid");
+      if (!alive()) return;
+      if (vapidRes.status === 401) {
+        setState("unavailable");
+        setDetail("Tenés que estar logueada en Ops.");
+        return;
+      }
+      if (!vapidRes.ok) {
+        setState("unavailable");
+        setDetail(`No se pudo leer VAPID (${vapidRes.status}).`);
+        return;
+      }
+      const vapid = (await vapidRes.json()) as {
+        configured?: boolean;
+        publicKey?: string | null;
+      };
+      if (!alive()) return;
+      if (!vapid.configured || !vapid.publicKey) {
+        setState("unavailable");
+        setDetail(
+          "Faltan VAPID en este deploy (NEXT_PUBLIC_VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY) o no se rebuildó tras setearlas.",
+        );
+        return;
+      }
+
+      const reg = await navigator.serviceWorker.ready;
+      if (!alive()) return;
+      const existing = await reg.pushManager.getSubscription();
+      if (!alive()) return;
+      if (existing) {
+        const sync = await fetch("/api/ops/push/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            endpoint: existing.endpoint,
+            keys: {
+              p256dh: existing.toJSON().keys?.p256dh,
+              auth: existing.toJSON().keys?.auth,
+            },
+          }),
+        });
+        if (!alive()) return;
+        if (!sync.ok) {
+          setState("unavailable");
+          setDetail(
+            `Hay suscripción local pero el server no la guardó (${sync.status}).`,
+          );
+          return;
+        }
+        setState("subscribed");
+        setDetail(null);
+        return;
+      }
+
+      if (Notification.permission === "denied") {
+        setState("denied");
+        setDetail(null);
+        return;
+      }
+
+      if (wasDismissed()) {
+        setState("hidden");
+        setDetail(null);
+        return;
+      }
+
+      setState("prompt");
+      setDetail(null);
+    } catch (error) {
+      console.warn("[ops] push init", error);
+      if (!alive()) return;
+      setState("unavailable");
+      setDetail("Error al inicializar push.");
+    }
   }, []);
+
+  useEffect(() => {
+    const signal = { cancelled: false };
+    // Diferir fuera del body síncrono del effect (eslint react-hooks/set-state-in-effect).
+    const id = window.setTimeout(() => {
+      void refresh(signal);
+    }, 0);
+    return () => {
+      signal.cancelled = true;
+      window.clearTimeout(id);
+    };
+  }, [refresh]);
 
   async function enable() {
     setState("loading");
+    setDetail(null);
+    clearDismissed();
     try {
       const vapidRes = await fetch("/api/ops/push/vapid");
       const vapid = (await vapidRes.json()) as {
@@ -124,6 +178,7 @@ export function OpsPushPrompt() {
       };
       if (!vapid.configured || !vapid.publicKey) {
         setState("unavailable");
+        setDetail("VAPID no configurado en este deploy.");
         return;
       }
 
@@ -154,12 +209,16 @@ export function OpsPushPrompt() {
       });
       if (!res.ok) {
         setState("unavailable");
+        setDetail(`Subscribe falló (${res.status}).`);
         return;
       }
       setState("subscribed");
     } catch (error) {
       console.warn("[ops] push subscribe failed", error);
-      setState("prompt");
+      setState("unavailable");
+      setDetail(
+        error instanceof Error ? error.message : "No se pudo suscribir",
+      );
     }
   }
 
@@ -168,14 +227,62 @@ export function OpsPushPrompt() {
     setState("hidden");
   }
 
-  if (
-    state === "hidden" ||
-    state === "loading" ||
-    state === "subscribed" ||
-    state === "unavailable" ||
-    state === "unsupported"
-  ) {
-    return null;
+  if (state === "loading") {
+    return (
+      <div className="border-b border-outline-variant/40 bg-surface-container px-4 py-2">
+        <p className="mx-auto max-w-lg font-sans text-xs text-secondary">
+          Revisando notificaciones…
+        </p>
+      </div>
+    );
+  }
+
+  if (state === "hidden") {
+    return (
+      <div className="border-b border-outline-variant/40 bg-surface-container/60 px-4 py-2">
+        <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
+          <p className="font-sans text-xs text-secondary">
+            Avisos push ocultos
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              clearDismissed();
+              void refresh();
+            }}
+            className="font-sans text-xs text-primary underline-offset-2 hover:underline"
+          >
+            Mostrar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (state === "subscribed") {
+    return (
+      <div className="border-b border-outline-variant/40 bg-surface-container px-4 py-2">
+        <p className="mx-auto max-w-lg font-sans text-xs text-secondary">
+          Notificaciones de días especiales:{" "}
+          <span className="font-semibold text-foreground">activas</span>
+        </p>
+      </div>
+    );
+  }
+
+  if (state === "unavailable" || state === "unsupported") {
+    return (
+      <div className="border-b border-outline-variant/40 bg-primary/10 px-4 py-3">
+        <div className="mx-auto max-w-lg">
+          <p className="font-display text-sm font-semibold text-foreground">
+            Push no disponible
+          </p>
+          <p className="mt-0.5 font-sans text-xs leading-relaxed text-secondary">
+            {detail ?? "No se pudieron activar las notificaciones."}
+          </p>
+        </div>
+      </div>
+    );
   }
 
   if (state === "denied") {
@@ -186,8 +293,7 @@ export function OpsPushPrompt() {
             Notificaciones bloqueadas
           </p>
           <p className="mt-0.5 font-sans text-xs text-secondary">
-            Activálas en los ajustes del navegador para recibir avisos de días
-            especiales.
+            Activálas en los ajustes del navegador / del sistema para esta app.
           </p>
         </div>
       </div>
