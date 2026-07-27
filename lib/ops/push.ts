@@ -217,6 +217,8 @@ async function sendToSubscription(
 
 export async function dispatchSpecialDayPushes(): Promise<{
   alerts: number;
+  alertKeys: string[];
+  today: string;
   subscriptions: number;
   sent: number;
   skipped: number;
@@ -252,6 +254,8 @@ export async function dispatchSpecialDayPushes(): Promise<{
 
   return {
     alerts: alerts.length,
+    alertKeys: alerts.map((a) => a.key),
+    today: formatCivilDate(todayInArgentina()),
     subscriptions: subscriptions.length,
     sent,
     skipped,

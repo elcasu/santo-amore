@@ -1,4 +1,5 @@
 import { client } from "@/sanity/lib/client";
+import { getWriteClient } from "@/sanity/lib/write-client";
 
 import {
   DEFAULT_PUSH_REPEAT_DAYS,
@@ -171,7 +172,11 @@ function normalizeRepeatDays(value: unknown, fallback: number): number {
 
 export async function fetchSpecialDaysConfig(): Promise<SpecialDaysConfig> {
   try {
-    const doc = await client.fetch<SanityDoc | null>(query);
+    // Sin CDN: el cron y Ops deben ver el Publish al instante.
+    const sanity = process.env.SANITY_API_WRITE_TOKEN
+      ? getWriteClient()
+      : client;
+    const doc = await sanity.fetch<SanityDoc | null>(query);
     if (doc?.items?.length) {
       const items = doc.items
         .map(normalizeItem)
