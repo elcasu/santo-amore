@@ -39,6 +39,29 @@ export const saleSnapshot = defineType({
       readOnly: true,
     }),
     defineField({
+      name: "channel",
+      title: "Canal",
+      type: "string",
+      options: {
+        list: [
+          { title: "Online (MercadoPago)", value: "online" },
+          { title: "Feria", value: "feria" },
+          { title: "Local", value: "local" },
+          { title: "WhatsApp", value: "whatsapp" },
+          { title: "Otro", value: "other" },
+        ],
+      },
+      initialValue: "online",
+      validation: (rule) => rule.required(),
+      readOnly: true,
+    }),
+    defineField({
+      name: "notes",
+      title: "Notas",
+      type: "string",
+      readOnly: true,
+    }),
+    defineField({
       name: "items",
       title: "Ítems (congelados)",
       type: "array",
@@ -123,10 +146,11 @@ export const saleSnapshot = defineType({
       title: "orderNumber",
       revenue: "revenue",
       paidAt: "paidAt",
+      channel: "channel",
     },
-    prepare: ({ title, revenue, paidAt }) => ({
+    prepare: ({ title, revenue, paidAt, channel }) => ({
       title: title || "Venta",
-      subtitle: `$${revenue ?? 0} · ${paidAt ? String(paidAt).slice(0, 10) : "—"}`,
+      subtitle: `${channel || "online"} · $${revenue ?? 0} · ${paidAt ? String(paidAt).slice(0, 10) : "—"}`,
     }),
   },
 });

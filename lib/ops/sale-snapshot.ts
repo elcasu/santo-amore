@@ -85,6 +85,7 @@ export async function ensureSaleSnapshotForOrder(
     orderNumber: order.orderNumber,
     paidAt,
     currency: order.currency || "ARS",
+    channel: "online",
     items,
     revenue: totals.revenue,
     cogs: totals.cogs,

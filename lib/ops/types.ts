@@ -12,6 +12,15 @@ export type OrderPaymentStatus =
   | "rejected"
   | "cancelled";
 
+export type SaleChannel =
+  | "online"
+  | "feria"
+  | "local"
+  | "whatsapp"
+  | "other";
+
+export type OfflineSaleChannel = Exclude<SaleChannel, "online">;
+
 export type OpsProduct = {
   _id: string;
   title: string;
@@ -20,6 +29,12 @@ export type OpsProduct = {
   trackInventory: boolean;
   stockQty?: number;
   mainImage?: { src: string; alt?: string };
+};
+
+/** Producto con precio/costo para el form de ventas offline. */
+export type OpsSaleProduct = OpsProduct & {
+  price?: number;
+  unitCost?: number;
 };
 
 export type OpsOrderItem = {
@@ -81,6 +96,30 @@ export const FULFILLMENT_STATUS_LABELS: Record<FulfillmentStatus, string> = {
   shipped: "Enviado",
   delivered: "Entregado",
 };
+
+export const OFFLINE_SALE_CHANNELS: OfflineSaleChannel[] = [
+  "feria",
+  "local",
+  "whatsapp",
+  "other",
+];
+
+export const SALE_CHANNEL_LABELS: Record<SaleChannel, string> = {
+  online: "Online",
+  feria: "Feria",
+  local: "Local",
+  whatsapp: "WhatsApp",
+  other: "Otro",
+};
+
+export function isOfflineSaleChannel(
+  value: unknown,
+): value is OfflineSaleChannel {
+  return (
+    typeof value === "string" &&
+    (OFFLINE_SALE_CHANNELS as string[]).includes(value)
+  );
+}
 
 export function isCommerceStatus(value: unknown): value is CommerceStatus {
   return (

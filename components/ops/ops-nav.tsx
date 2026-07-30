@@ -6,7 +6,7 @@ import { getOpsInboxUrl } from "@/lib/whatsapp";
 export function OpsNav({
   active,
 }: {
-  active: "products" | "orders" | "metrics";
+  active: "products" | "orders" | "sales" | "metrics";
 }) {
   const inboxUrl = getOpsInboxUrl();
 
@@ -32,12 +32,17 @@ export function OpsNav({
           </form>
         ) : null}
       </div>
-      <nav className="mx-auto flex max-w-lg gap-1 px-4 pb-3">
+      <nav className="mx-auto flex max-w-lg gap-1 overflow-x-auto px-4 pb-3">
         <NavTab href="/ops" label="Productos" active={active === "products"} />
         <NavTab
           href="/ops/pedidos"
           label="Pedidos"
           active={active === "orders"}
+        />
+        <NavTab
+          href="/ops/ventas"
+          label="Ventas"
+          active={active === "sales"}
         />
         <NavTab
           href="/ops/metricas"
@@ -49,7 +54,7 @@ export function OpsNav({
             href={inboxUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 rounded bg-surface-container px-3 py-2.5 text-center font-display text-sm font-semibold text-secondary transition-colors hover:text-foreground"
+            className="shrink-0 rounded bg-surface-container px-3 py-2.5 text-center font-display text-sm font-semibold text-secondary transition-colors hover:text-foreground"
           >
             Inbox
           </a>
@@ -71,7 +76,7 @@ function NavTab({
   return (
     <Link
       href={href}
-      className={`flex-1 rounded px-3 py-2.5 text-center font-display text-sm font-semibold transition-colors ${
+      className={`shrink-0 rounded px-3 py-2.5 text-center font-display text-sm font-semibold transition-colors ${
         active
           ? "bg-primary text-on-primary"
           : "bg-surface-container text-secondary hover:text-foreground"

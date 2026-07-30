@@ -1,4 +1,4 @@
-import { client } from "@/sanity/lib/client";
+import { freshClient } from "@/sanity/lib/client";
 import { getWriteClient } from "@/sanity/lib/write-client";
 
 import type { FulfillmentStatus, OpsOrder } from "./types";
@@ -27,7 +27,7 @@ const listQuery = `*[_type == "order"] | order(_createdAt desc)[0...50] ${opsOrd
 const byIdQuery = `*[_type == "order" && _id == $id][0] ${opsOrderProjection}`;
 
 export async function listOpsOrders(): Promise<OpsOrder[]> {
-  const orders = await client.fetch<OpsOrder[]>(listQuery);
+  const orders = await freshClient.fetch<OpsOrder[]>(listQuery);
   return orders.sort((a, b) => {
     const paidRank = (s: string) => (s === "paid" ? 0 : 1);
     const byPaid = paidRank(a.status) - paidRank(b.status);
@@ -37,7 +37,7 @@ export async function listOpsOrders(): Promise<OpsOrder[]> {
 }
 
 export async function getOpsOrder(id: string): Promise<OpsOrder | null> {
-  return client.fetch<OpsOrder | null>(byIdQuery, { id });
+  return freshClient.fetch<OpsOrder | null>(byIdQuery, { id });
 }
 
 export async function patchOpsOrderFulfillment(

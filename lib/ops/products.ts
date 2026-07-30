@@ -1,8 +1,8 @@
 import type { CommerceStatus } from "@/lib/types/content";
-import { client } from "@/sanity/lib/client";
+import { freshClient } from "@/sanity/lib/client";
 import { getWriteClient } from "@/sanity/lib/write-client";
 
-import type { OpsProduct } from "./types";
+import type { OpsProduct, OpsSaleProduct } from "./types";
 
 const opsProductProjection = `{
   _id,
@@ -17,15 +17,42 @@ const opsProductProjection = `{
   }
 }`;
 
+const opsSaleProductProjection = `{
+  _id,
+  title,
+  sku,
+  price,
+  unitCost,
+  "commerceStatus": coalesce(commerceStatus, "available"),
+  "trackInventory": coalesce(trackInventory, false),
+  stockQty,
+  "mainImage": mainImage{
+    "src": asset->url,
+    "alt": alt
+  }
+}`;
+
 const listQuery = `*[_type == "product"] | order(title asc) ${opsProductProjection}`;
+const listSaleQuery = `*[_type == "product"] | order(title asc) ${opsSaleProductProjection}`;
 const byIdQuery = `*[_type == "product" && _id == $id][0] ${opsProductProjection}`;
+const byIdSaleQuery = `*[_type == "product" && _id == $id][0] ${opsSaleProductProjection}`;
 
 export async function listOpsProducts(): Promise<OpsProduct[]> {
-  return client.fetch<OpsProduct[]>(listQuery);
+  return freshClient.fetch<OpsProduct[]>(listQuery);
+}
+
+export async function listOpsSaleProducts(): Promise<OpsSaleProduct[]> {
+  return freshClient.fetch<OpsSaleProduct[]>(listSaleQuery);
 }
 
 export async function getOpsProduct(id: string): Promise<OpsProduct | null> {
-  return client.fetch<OpsProduct | null>(byIdQuery, { id });
+  return freshClient.fetch<OpsProduct | null>(byIdQuery, { id });
+}
+
+export async function getOpsSaleProduct(
+  id: string,
+): Promise<OpsSaleProduct | null> {
+  return getWriteClient().fetch<OpsSaleProduct | null>(byIdSaleQuery, { id });
 }
 
 export async function patchOpsProduct(

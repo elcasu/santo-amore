@@ -2,7 +2,7 @@
 
 Documento vivo para que cualquier chat/agente retome el hilo sin perder decisiones.
 
-Última actualización: 2026-07-25 (WhatsApp Cloud API + Chatwoot)
+Última actualización: 2026-07-30 (ventas offline en /ops)
 
 ## Qué es
 
@@ -71,7 +71,7 @@ outline-variant:       #e5beb8
 
 ### UI actual (store Neo Luxury)
 
-- Rutas: `/` home, `/catalogo`, `/producto/[slug]`, `/carrito`, `/checkout`, `/pedido/exito|pendiente|fallo`, `/nosotros`, `/envios`, `/contacto`, `/ops` (staff)
+- Rutas: `/` home, `/catalogo`, `/producto/[slug]`, `/carrito`, `/checkout`, `/pedido/exito|pendiente|fallo`, `/nosotros`, `/envios`, `/contacto`, `/ops` (staff: productos, pedidos, ventas offline, métricas)
 - Shell: header fijo blur + ícono carrito (drawer) + footer links + FAB WhatsApp (si hay `NEXT_PUBLIC_WHATSAPP_PHONE`)
 - Assets mock: `public/brand/neo-*.png|jpg`
 - Tipografía: Montserrat + Inter
@@ -108,10 +108,16 @@ outline-variant:       #e5beb8
 Mini app para el staff (sin Studio): stock, `commerceStatus`, fulfillment de pedidos y métricas de negocio.
 
 - Auth: `OPS_PASSWORD` + cookie httpOnly `sa_ops_gate` (independiente de `SITE_PASSWORD`)
-- Rutas: `/ops/login`, `/ops` (productos), `/ops/pedidos`, `/ops/metricas`
-- APIs: `/api/ops/*` (login/logout, products, orders, metrics, special-days, push, cron) — usan `SANITY_API_WRITE_TOKEN`
+- Rutas: `/ops/login`, `/ops` (productos), `/ops/pedidos`, `/ops/ventas`, `/ops/metricas`
+- APIs: `/api/ops/*` (login/logout, products, orders, offline-sales, metrics, special-days, push, cron) — usan `SANITY_API_WRITE_TOKEN`
 - Pedidos: `order.fulfillmentStatus` = `to_prepare` | `preparing` | `shipped` | `delivered` (aparte del `status` de pago)
   - Al pasar a `shipped`/`delivered`, se setea `shippedAt` / `deliveredAt` (setIfMissing)
+- **Ventas offline:** `/ops/ventas` — registrar ventas fuera del ecommerce (feria / local / WhatsApp / otro)
+  - Crea `saleSnapshot` con `channel` offline + `notes` opcional; `orderId` sintético `offline:{uuid}`, número `OFF-YYMMDD-XXXX`
+  - No crea documento `order` (no mezcla con la cola de fulfillment)
+  - Descuenta `stockQty` si `trackInventory`; si llega a 0 → `commerceStatus: sold_out`
+  - Entra a métricas junto con las ventas online (mismo `saleSnapshot`)
+  - API: `GET/POST /api/ops/offline-sales`
 - **Días especiales:** singleton Sanity `opsSpecialDays` (Studio → “Días especiales”)
   - Lista AR (Madre, Navidad, San Valentín, Amigo, Mujer, Niño, Padre, Reyes, Abuelos, Hermanos, Primos…)
   - Anticipación configurable (`defaultLeadDays`, default 7; override por ítem)
@@ -134,7 +140,8 @@ Mini app para el staff (sin Studio): stock, `commerceStatus`, fulfillment de ped
 **Regla:** las estadísticas leen solo `saleSnapshot`, no el catálogo vivo ni campos editables del pedido. Cambiar precio/`unitCost` de un producto no reescribe el histórico.
 
 - `product.unitCost` (ARS, opcional): costo actual; se snappea al checkout en `order.items[].unitCost`
-- Al webhook MP con pago `approved`: crea `saleSnapshot` idempotente (`orderId` único) con revenue / cogs / grossProfit congelados
+- Al webhook MP con pago `approved`: crea `saleSnapshot` idempotente (`orderId` único) con `channel: "online"` y revenue / cogs / grossProfit congelados
+- Ventas offline (`/ops/ventas`): mismo `saleSnapshot` con `channel` = `feria` | `local` | `whatsapp` | `other`
 - Dashboard: `/ops/metricas` → `GET /api/ops/metrics?preset=7d|30d|90d` o `from`/`to`
 - KPIs: revenue, pedidos, ticket medio, margen, ranking por producto (ROI = grossProfit/cogs), cola de fulfillment
 - Studio: `saleSnapshot` oculto; campos financieros de `order` read-only
