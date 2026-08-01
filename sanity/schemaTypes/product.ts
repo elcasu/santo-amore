@@ -1,4 +1,41 @@
-import { defineField, defineType } from "sanity";
+import { defineField, defineType, getPublishedId } from "sanity";
+import type { ValidationContext } from "sanity";
+
+import { apiVersion } from "../env";
+
+const SLUG_MAX_LENGTH = 96;
+
+/** El slug va en la URL `/producto/[slug]`: mayúsculas, espacios o acentos rompen el detalle. */
+function toSlug(input: string): string {
+  return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, SLUG_MAX_LENGTH)
+    .replace(/-+$/g, "");
+}
+
+/** Unicidad entre productos (excluye draft/versiones del documento actual). */
+async function isUniqueProductSlug(
+  slug: string,
+  context: Pick<ValidationContext, "document" | "getClient">,
+): Promise<boolean> {
+  const { document, getClient } = context;
+  if (!document?._id) return true;
+
+  const client = getClient({ apiVersion });
+  return client.fetch(
+    `!defined(*[
+      _type == "product" &&
+      !sanity::versionOf($published) &&
+      slug.current == $slug
+    ][0]._id)`,
+    { slug, published: getPublishedId(document._id) },
+    { tag: "validation.product-slug-unique" },
+  );
+}
 
 export const product = defineType({
   name: "product",
@@ -15,8 +52,24 @@ export const product = defineType({
       name: "slug",
       title: "Slug",
       type: "slug",
-      options: { source: "title", maxLength: 96 },
-      validation: (rule) => rule.required(),
+      options: {
+        source: "title",
+        maxLength: SLUG_MAX_LENGTH,
+        slugify: toSlug,
+        isUnique: isUniqueProductSlug,
+      },
+      validation: (rule) =>
+        rule.required().custom(async (value, context) => {
+          const current = value?.current ?? "";
+          if (!current) return true;
+          if (current !== toSlug(current)) {
+            return `Solo minúsculas, números y guiones (sin espacios ni acentos). Sugerido: "${toSlug(current)}"`;
+          }
+          if (!(await isUniqueProductSlug(current, context))) {
+            return "Ya existe otro producto con este slug.";
+          }
+          return true;
+        }),
     }),
     defineField({
       name: "sku",
