@@ -1,3 +1,7 @@
+import {
+  DEFAULT_COUNTRY_CODE,
+  DEFAULT_LOCATION_LABEL,
+} from "@/lib/site/location";
 import type {
   Category,
   FeaturedDrop,
@@ -5,6 +9,7 @@ import type {
   Page,
   PortableTextBlock,
   Product,
+  SiteSettings,
 } from "@/lib/types/content";
 
 function block(text: string, key: string): PortableTextBlock {
@@ -223,6 +228,11 @@ export const mockFeaturedDrops: FeaturedDrop[] = [
     product: mockProducts[1], // Colgante Veda
   },
 ];
+
+export const mockSiteSettings: SiteSettings = {
+  locationLabel: DEFAULT_LOCATION_LABEL,
+  countryCode: DEFAULT_COUNTRY_CODE,
+};
 
 export const mockHome: HomePage = {
   hero: {

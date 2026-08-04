@@ -2,6 +2,7 @@ import type { StructureResolver } from "sanity/structure";
 
 const HIDDEN_TYPES = new Set([
   "home",
+  "siteSettings",
   "saleSnapshot",
   "opsSpecialDays",
   "opsPushSubscription",
@@ -17,6 +18,15 @@ export const structure: StructureResolver = (S) =>
         .id("home")
         .child(
           S.document().schemaType("home").documentId("home").title("Home"),
+        ),
+      S.listItem()
+        .title("Datos del negocio")
+        .id("siteSettings")
+        .child(
+          S.document()
+            .schemaType("siteSettings")
+            .documentId("siteSettings")
+            .title("Datos del negocio"),
         ),
       S.listItem()
         .title("Días especiales")

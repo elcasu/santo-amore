@@ -15,10 +15,12 @@ import { order } from "./order";
 import { page } from "./page";
 import { product } from "./product";
 import { saleSnapshot } from "./saleSnapshot";
+import { siteSettings } from "./siteSettings";
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   // Documents
   home,
+  siteSettings,
   category,
   product,
   page,

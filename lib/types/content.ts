@@ -81,6 +81,11 @@ export type FeaturedDrop = {
   >;
 };
 
+export type SiteSettings = {
+  locationLabel: string;
+  countryCode: string;
+};
+
 export type HomePage = {
   hero: {
     eyebrow?: string;

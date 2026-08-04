@@ -4,13 +4,19 @@ import {
   mockHome,
   mockPages,
   mockProducts,
+  mockSiteSettings,
 } from "@/lib/data/mocks";
+import {
+  resolveCountryCode,
+  resolveLocationLabel,
+} from "@/lib/site/location";
 import type {
   Category,
   FeaturedDrop,
   HomePage,
   Page,
   Product,
+  SiteSettings,
 } from "@/lib/types/content";
 
 function usingMocks(): boolean {
@@ -47,6 +53,11 @@ const productCardProjection = `{
   collectionLabel,
   "mainImage": mainImage${imageProjection},
   categories[]->{ _id, title, "slug": slug.current, description }
+}`;
+
+const siteSettingsQuery = `*[_type == "siteSettings" && _id == "siteSettings"][0]{
+  locationLabel,
+  countryCode
 }`;
 
 const homeQuery = `*[_type == "home" && _id == "home"][0]{
@@ -142,6 +153,34 @@ const pageBySlugQuery = `*[_type == "page" && slug.current == $slug][0] {
 async function sanityClient() {
   const { client } = await import("@/sanity/lib/client");
   return client;
+}
+
+export async function getSiteSettings(): Promise<{
+  settings: SiteSettings;
+  source: "mock" | "sanity" | "sanity-fallback";
+}> {
+  if (usingMocks()) return { settings: mockSiteSettings, source: "mock" };
+
+  const client = await sanityClient();
+  const raw = await client.fetch<{
+    locationLabel?: string;
+    countryCode?: string;
+  } | null>(siteSettingsQuery);
+  const locationLabel = resolveLocationLabel(raw?.locationLabel);
+  const countryCode = resolveCountryCode(raw?.countryCode);
+
+  if (!raw?.locationLabel?.trim()) {
+    console.warn(
+      "[santo-amore] No hay documento Datos del negocio publicado en Sanity (id: siteSettings). " +
+        "Abrí /studio → Datos del negocio, completá y Publish. Mientras tanto se usa el fallback.",
+    );
+    return {
+      settings: { locationLabel, countryCode },
+      source: "sanity-fallback",
+    };
+  }
+
+  return { settings: { locationLabel, countryCode }, source: "sanity" };
 }
 
 export async function getHomePage(): Promise<{
