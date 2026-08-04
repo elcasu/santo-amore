@@ -1,21 +1,10 @@
 import { defineField, defineType, getPublishedId } from "sanity";
 import type { ValidationContext } from "sanity";
 
+import { AutoSlugInput } from "../components/auto-slug-input";
+import { TitleDefaultAltInput } from "../components/title-default-alt-input";
 import { apiVersion } from "../env";
-
-const SLUG_MAX_LENGTH = 96;
-
-/** El slug va en la URL `/producto/[slug]`: mayúsculas, espacios o acentos rompen el detalle. */
-function toSlug(input: string): string {
-  return input
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, SLUG_MAX_LENGTH)
-    .replace(/-+$/g, "");
-}
+import { SLUG_MAX_LENGTH, toSlug } from "../lib/slug";
 
 /** Unicidad entre productos (excluye draft/versiones del documento actual). */
 async function isUniqueProductSlug(
@@ -37,6 +26,17 @@ async function isUniqueProductSlug(
   );
 }
 
+function productImageAltField() {
+  return defineField({
+    name: "alt",
+    title: "Texto alternativo",
+    type: "string",
+    description:
+      "Al subir la imagen, si está vacío se completa con el nombre del producto.",
+    components: { input: TitleDefaultAltInput },
+  });
+}
+
 export const product = defineType({
   name: "product",
   title: "Producto",
@@ -52,12 +52,14 @@ export const product = defineType({
       name: "slug",
       title: "Slug",
       type: "slug",
+      description: "Se genera solo a partir del nombre; podés editarlo si hace falta.",
       options: {
         source: "title",
         maxLength: SLUG_MAX_LENGTH,
         slugify: toSlug,
         isUnique: isUniqueProductSlug,
       },
+      components: { input: AutoSlugInput },
       validation: (rule) =>
         rule.required().custom(async (value, context) => {
           const current = value?.current ?? "";
@@ -82,13 +84,7 @@ export const product = defineType({
       title: "Imagen principal",
       type: "image",
       options: { hotspot: true },
-      fields: [
-        defineField({
-          name: "alt",
-          title: "Texto alternativo",
-          type: "string",
-        }),
-      ],
+      fields: [productImageAltField()],
     }),
     defineField({
       name: "images",
@@ -98,13 +94,7 @@ export const product = defineType({
         {
           type: "image",
           options: { hotspot: true },
-          fields: [
-            defineField({
-              name: "alt",
-              title: "Texto alternativo",
-              type: "string",
-            }),
-          ],
+          fields: [productImageAltField()],
         },
       ],
     }),

@@ -25,6 +25,7 @@ export default async function ProductPage({ params }: Props) {
   const related = (await getProducts())
     .filter((p) => p.slug !== product.slug)
     .slice(0, 3);
+  const galleryImages = (product.images ?? []).filter((img) => img?.src);
 
   return (
     <div className="mx-auto max-w-[1280px] px-5 py-16 md:px-16">
@@ -47,9 +48,9 @@ export default async function ProductPage({ params }: Props) {
               </span>
             ) : null}
           </div>
-          {product.images && product.images.length > 1 ? (
+          {galleryImages.length > 0 ? (
             <div className="mt-4 grid grid-cols-3 gap-3">
-              {product.images.slice(0, 3).map((img) => (
+              {galleryImages.slice(0, 3).map((img) => (
                 <div
                   key={img.src}
                   className="relative aspect-square overflow-hidden rounded-lg bg-surface-container"
