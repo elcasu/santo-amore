@@ -1,0 +1,13 @@
+---
+description: Toda funcionalidad nueva debe incluir unit tests Vitest
+alwaysApply: true
+---
+
+# Testing
+
+Al agregar o cambiar lógica de negocio, incluir unit tests Vitest en el mismo cambio (`*.test.ts` junto al módulo).
+
+- Cubrir parsers, cálculos, guards, mapeos y helpers en `lib/`.
+- Si la lógica nace privada en una route/component, extraerla a `lib/` para testearla.
+- No entregar features de lógica sin tests.
+- Comandos: `npm test` / `npm run test:watch`. CI corre `lint` + `test`.

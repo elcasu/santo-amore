@@ -5,6 +5,10 @@ import {
   createCheckoutPreference,
   createPendingOrder,
 } from "@/lib/checkout/create-order";
+import {
+  parseCustomer,
+  parseShipping,
+} from "@/lib/checkout/parse-request";
 import type {
   CheckoutCartLine,
   CheckoutCustomer,
@@ -17,51 +21,6 @@ type CheckoutBody = {
   customer?: Partial<CheckoutCustomer>;
   shipping?: Partial<CheckoutShipping>;
 };
-
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
-}
-
-function parseCustomer(
-  raw: Partial<CheckoutCustomer> | undefined,
-): CheckoutCustomer | null {
-  if (
-    !raw ||
-    !isNonEmptyString(raw.name) ||
-    !isNonEmptyString(raw.email) ||
-    !isNonEmptyString(raw.phone)
-  ) {
-    return null;
-  }
-  const email = raw.email.trim();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return null;
-  return {
-    name: raw.name.trim(),
-    email,
-    phone: raw.phone.trim(),
-  };
-}
-
-function parseShipping(
-  raw: Partial<CheckoutShipping> | undefined,
-): CheckoutShipping | null {
-  if (
-    !raw ||
-    !isNonEmptyString(raw.address) ||
-    !isNonEmptyString(raw.city) ||
-    !isNonEmptyString(raw.province) ||
-    !isNonEmptyString(raw.postalCode)
-  ) {
-    return null;
-  }
-  return {
-    address: raw.address.trim(),
-    city: raw.city.trim(),
-    province: raw.province.trim(),
-    postalCode: raw.postalCode.trim(),
-    notes: isNonEmptyString(raw.notes) ? raw.notes.trim() : undefined,
-  };
-}
 
 export async function POST(request: Request) {
   try {

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
 import {
   COMMERCE_STATUSES,
@@ -230,10 +230,11 @@ function StockStepper({
   onStock: (qty: number) => void;
 }) {
   const [draft, setDraft] = useState(String(qty));
-
-  useEffect(() => {
+  const [syncedQty, setSyncedQty] = useState(qty);
+  if (qty !== syncedQty) {
+    setSyncedQty(qty);
     setDraft(String(qty));
-  }, [qty]);
+  }
 
   function commitDraft() {
     const n = Number(draft);

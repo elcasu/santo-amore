@@ -92,6 +92,8 @@ outline-variant:       #e5beb8
 - Capa de datos: `lib/data/` + tipos en `lib/types/content.ts`
 - Assets de marca en `public/brand/`
 - Descargas temporales de Stitch en `.tmp-stitch/` (gitignored)
+- **Tests:** Vitest (unitarios de lógica en `lib/`, archivos `*.test.ts` junto al módulo). `npm test` / `npm run test:watch`. CI en GitHub Actions corre `lint` + `test` en push/PR a `main`.
+- **Regla:** toda funcionalidad nueva o cambio de lógica de negocio incluye tests en el mismo cambio; si hace falta, extraer helpers a `lib/` para poder testearlos.
 
 ## Sanity (CMS)
 

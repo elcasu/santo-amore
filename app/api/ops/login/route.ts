@@ -6,6 +6,7 @@ import {
   isOpsGateEnabled,
   opsCookieOptions,
 } from "@/lib/ops-gate";
+import { sanitizeOpsNext } from "@/lib/sanitize-next";
 
 export async function POST(request: Request) {
   if (!isOpsGateEnabled()) {
@@ -30,11 +31,11 @@ export async function POST(request: Request) {
   if (contentType.includes("application/json")) {
     const body = (await request.json()) as { password?: string; next?: string };
     submitted = body.password ?? "";
-    nextPath = sanitizeNext(body.next);
+    nextPath = sanitizeOpsNext(body.next);
   } else {
     const form = await request.formData();
     submitted = String(form.get("password") ?? "");
-    nextPath = sanitizeNext(String(form.get("next") ?? "/ops"));
+    nextPath = sanitizeOpsNext(String(form.get("next") ?? "/ops"));
   }
 
   if (submitted !== password) {
@@ -49,10 +50,4 @@ export async function POST(request: Request) {
   const res = NextResponse.redirect(new URL(nextPath, request.url), 303);
   res.cookies.set(opts.name, token, opts);
   return res;
-}
-
-function sanitizeNext(raw: string | undefined): string {
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "/ops";
-  if (!raw.startsWith("/ops") || raw.startsWith("/ops/login")) return "/ops";
-  return raw;
 }

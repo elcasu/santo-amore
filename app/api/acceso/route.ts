@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { sanitizeSiteNext } from "@/lib/sanitize-next";
 import {
   gateCookieOptions,
   getSitePassword,
@@ -24,11 +25,11 @@ export async function POST(request: Request) {
   if (contentType.includes("application/json")) {
     const body = (await request.json()) as { password?: string; next?: string };
     submitted = body.password ?? "";
-    nextPath = sanitizeNext(body.next);
+    nextPath = sanitizeSiteNext(body.next);
   } else {
     const form = await request.formData();
     submitted = String(form.get("password") ?? "");
-    nextPath = sanitizeNext(String(form.get("next") ?? "/"));
+    nextPath = sanitizeSiteNext(String(form.get("next") ?? "/"));
   }
 
   if (submitted !== password) {
@@ -43,10 +44,4 @@ export async function POST(request: Request) {
   const res = NextResponse.redirect(new URL(nextPath, request.url), 303);
   res.cookies.set(opts.name, token, opts);
   return res;
-}
-
-function sanitizeNext(raw: string | undefined): string {
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "/";
-  if (raw.startsWith("/acceso")) return "/";
-  return raw;
 }

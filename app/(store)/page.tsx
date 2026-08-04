@@ -29,9 +29,9 @@ export default async function HomePage() {
             <>
               Sanity no tiene una <strong>Home</strong> publicada todavía. Estás
               viendo el mock. Abrí{" "}
-              <a href="/studio" className="underline">
+              <Link href="/studio" className="underline">
                 /studio → Home
-              </a>
+              </Link>
               , completá las secciones y hacé <strong>Publish</strong>.
             </>
           )}

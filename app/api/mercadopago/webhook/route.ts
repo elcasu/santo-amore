@@ -1,29 +1,13 @@
 import { NextResponse } from "next/server";
 
-import type { OrderStatus } from "@/lib/checkout/types";
 import { createPaymentApi } from "@/lib/mercadopago/client";
+import { mapPaymentStatus } from "@/lib/mercadopago/map-payment-status";
 import { verifyMercadoPagoSignature } from "@/lib/mercadopago/verify-signature";
 import {
   ensureSaleSnapshotForOrder,
   fetchOrderForSaleSnapshot,
 } from "@/lib/ops/sale-snapshot";
 import { getWriteClient } from "@/sanity/lib/write-client";
-
-function mapPaymentStatus(status: string | undefined): OrderStatus | null {
-  switch (status) {
-    case "approved":
-      return "paid";
-    case "rejected":
-    case "cancelled":
-      return "rejected";
-    case "refunded":
-    case "charged_back":
-      return "cancelled";
-    default:
-      // pending / in_process / etc. — keep order pending
-      return null;
-  }
-}
 
 async function findOrderByExternalReference(externalReference: string) {
   const writeClient = getWriteClient();

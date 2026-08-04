@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 
+import { orderNumberFromRef } from "@/lib/checkout/order-number";
 import type {
   CheckoutCustomer,
   CheckoutShipping,
@@ -7,11 +8,6 @@ import type {
 } from "@/lib/checkout/types";
 import { createPreferenceApi, getSiteUrl } from "@/lib/mercadopago/client";
 import { getWriteClient } from "@/sanity/lib/write-client";
-
-function orderNumberFromRef(externalReference: string): string {
-  const short = externalReference.replace(/-/g, "").slice(0, 8).toUpperCase();
-  return `SA-${short}`;
-}
 
 export async function createPendingOrder(input: {
   items: ValidatedOrderItem[];
