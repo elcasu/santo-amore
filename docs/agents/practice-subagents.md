@@ -51,7 +51,13 @@ Registrá acá corridas reales (fecha + qué aprendiste).
 - Webhook no degrada un order ya `paid`; firma opcional si falta `MERCADOPAGO_WEBHOOK_SECRET`.
 - Top debug unpaid: webhook → checkout route → `create-order.ts` → `map-payment-status.ts` → `lib/ops/orders.ts` / doc `order` en Sanity.
 
-**Aprendizaje:** un explore medium refresca el mapa sin ensuciar el hilo; el playbook queda como fuente estable.
+**Aprendizaje:** un explore medium refresca el mapa sin ensuciar el hilo; el playbook queda como fuente estable. El YAML `description` de la skill se inyecta al agente padre: `validate-cart, create-order` se leyó como endpoints. Briefear con paths del **cuerpo** del skill, no parafraseando el YAML.
+
+### 2026-08-19 — Skills YAML (post-explore A)
+
+**Pedido:** alinear `description` de `sa-commerce` / `sa-ops` con rutas reales + línea anti-alucinación.
+
+**Aprendizaje:** el padre arma el prompt del explore con el YAML; si parece un endpoint, el mapa nace sucio y el subagente gasta tokens desmintiendo.
 
 ### 2026-08-19 — Explore ops offline (quick)
 
@@ -73,3 +79,5 @@ Contexto: Santo Amore, ver docs/agents/playbook-pedido-end-to-end.md
 Restricciones: no modificar archivos / no inventar envíos / devolver paths concretos
 Formato de salida: lista + secuencia + invariantes
 ```
+
+Al briefear un subagente: copiá paths del cuerpo del skill (tablas **Archivos clave** / **Rutas UI**), no parafrasees el YAML `description`.

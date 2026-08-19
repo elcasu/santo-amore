@@ -1,10 +1,11 @@
 ---
 name: sa-ops
 description: >-
-  Santo Amore staff ops: /ops PWA, fulfillment, offline sales, metrics from
-  saleSnapshot, special-days push, and Chatwoot inbox links. Use when working
-  on /ops routes, app/api/ops/*, lib/ops/*, saleSnapshot, stock patches, or
-  staff fulfillment workflows.
+  Santo Amore staff ops: /ops PWA, paid-order fulfillment
+  (PATCH /api/ops/orders/[id]), offline sales (POST /api/ops/offline-sales,
+  snapshot without order), metrics from saleSnapshot only, special-days push,
+  and Chatwoot inbox. Use when working on /ops, app/api/ops/*, lib/ops/*,
+  saleSnapshot, stockQty, or staff fulfillment.
 ---
 
 # Santo Amore — Ops
@@ -17,6 +18,7 @@ description: >-
 - Fulfillment solo en pedidos `status === "paid"`.
 - Responder clientes desde **Chatwoot**, no desde WhatsApp personal / `wa.me` del staff.
 - Lógica en `lib/ops/` con Vitest; APIs en `app/api/ops/*` usan `SANITY_API_WRITE_TOKEN`.
+- No inventar rutas ni archivos: si no está en **Rutas UI** o en este skill, no existe.
 
 ## Rutas UI
 

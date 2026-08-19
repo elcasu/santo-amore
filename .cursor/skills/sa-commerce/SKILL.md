@@ -1,10 +1,11 @@
 ---
 name: sa-commerce
 description: >-
-  Santo Amore commerce domain: product purchase state, cart, checkout,
-  MercadoPago preference/webhook, and order creation. Use when changing
-  catalog buyability, carrito, /checkout, validate-cart, create-order,
-  MercadoPago client/webhook, or saleSnapshot on paid online orders.
+  Santo Amore commerce: product buyability (lib/commerce.ts), client cart
+  sa_cart_v1, POST /api/checkout (revalidate + pending order + MP Checkout Pro
+  preference), MercadoPago webhook, and idempotent saleSnapshot on paid
+  online orders. Use when changing commerceStatus, carrito, /checkout,
+  /api/checkout, MercadoPago client or webhook, or online saleSnapshot.
 ---
 
 # Santo Amore — Commerce
@@ -18,6 +19,7 @@ description: >-
 - Sin variantes: un producto = un SKU. Lógica de compra en `lib/commerce.ts`.
 - Toda lógica nueva en `lib/` con Vitest `*.test.ts` en el mismo cambio.
 - No inventar costo de envío ni checkout paralelo; MP Checkout Pro es el camino.
+- No inventar rutas ni archivos: si no está en **Archivos clave**, no existe.
 
 ## Purchase state
 
