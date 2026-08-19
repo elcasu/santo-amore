@@ -197,6 +197,16 @@ Canal de atención 1:1 de la marca. El sitio solo enlaza; el staff atiende en Ch
 - Alta de agente: invitar en Chatwoot (mismo inbox); no compartir la SIM del número de marca.
 - Mejoras futuras (no MVP): API Chatwoot “abrir conversación del pedido”, widget web, template “pedido despachado”.
 
+## Agentes (laboratorio)
+
+Roadmap y vocabulario (rule / skill / subagente / automation / SDK): [`docs/agents/README.md`](agents/README.md).
+
+- Skills de dominio: `.cursor/skills/sa-commerce`, `.cursor/skills/sa-ops`
+- Playbook pedido: [`docs/agents/playbook-pedido-end-to-end.md`](agents/playbook-pedido-end-to-end.md)
+- Práctica subagentes: [`docs/agents/practice-subagents.md`](agents/practice-subagents.md)
+- Fase 2 (eng): [`docs/agents/eng-automations.md`](agents/eng-automations.md)
+- Fase 3 (negocio): [`docs/agents/biz-agents.md`](agents/biz-agents.md)
+
 ## Próximos pasos sugeridos
 
 1. Configurar tokens en `.env.local` / Vercel (`MERCADOPAGO_*`, `SANITY_API_WRITE_TOKEN`, `OPS_PASSWORD`, `NEXT_PUBLIC_SITE_URL` HTTPS en deploy)

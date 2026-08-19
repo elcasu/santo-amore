@@ -16,3 +16,4 @@ Leer y respetar `docs/PROJECT.md` como fuente de contexto del proyecto.
 - Tokens Neo Luxury: surface `#fbf9f8`, surface-container `#efeded`, primary `#b71511`, secondary `#5f5e5e`.
 - No inventar checkout aún; no commitear API keys (Stitch en `~/.cursor/mcp.json`; Sanity en `.env.local`).
 - Antes de código Next, revisar `node_modules/next/dist/docs/` (breaking changes).
+- Laboratorio de agentes: `docs/agents/README.md`; skills `sa-commerce` / `sa-ops` al tocar checkout, carrito, MP u `/ops`.
