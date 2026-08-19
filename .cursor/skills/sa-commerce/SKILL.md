@@ -37,7 +37,7 @@ description: >-
 2. Parse customer/shipping → `validateCheckoutCart` → `createPendingOrder` (`status: pending`, `fulfillmentStatus: to_prepare`).
 3. `createCheckoutPreference` → `attachPreferenceToOrder`.
 4. Redirect `initPoint` → retornos `/pedido/exito|pendiente|fallo`.
-5. Webhook [`app/api/mercadopago/webhook/route.ts`](../../../app/api/mercadopago/webhook/route.ts): actualiza `order.status` (`paid`/`rejected`/…) y crea `saleSnapshot` idempotente si aprobó (`channel: online`).
+5. Webhook [`app/api/mercadopago/webhook/route.ts`](../../../app/api/mercadopago/webhook/route.ts): actualiza `order.status` (`paid`/`rejected`/…), crea `saleSnapshot` idempotente si aprobó (`channel: online`) y descuenta stock tracked.
 
 ## Archivos clave
 
@@ -50,6 +50,8 @@ description: >-
 | MP client/status/signature | `lib/mercadopago/` |
 | Webhook | `app/api/mercadopago/webhook/route.ts` |
 | Online snapshot | `lib/ops/sale-snapshot.ts` |
+| Stock al pagar | `lib/ops/stock.ts` |
+| MP webhook auth | `lib/mercadopago/webhook-auth.ts` |
 | Site gate | `proxy.ts` (`/api/mercadopago` excluido) |
 | Product schema | `sanity/schemaTypes/product.ts` |
 
@@ -59,7 +61,7 @@ description: >-
 2. Extraer parsers/guards a `lib/`; no dejar lógica de negocio solo en routes.
 3. Tests: `npm test` (CI corre lint + test).
 4. No commitear keys MP/Sanity; usar `.env.local`.
-5. Stock online: hoy **no** se descuenta al pagar (manual/ops); no asumir descuento automático en webhook.
+5. Stock online: al webhook `paid`, `ensureStockAppliedForPaidOrder` descuenta `stockQty` si `trackInventory` (no `made_to_order`); idempotente via `order.stockAppliedAt`. Fallo de stock no revierte el pago; se loguea.
 
 ## Playbook pedido
 

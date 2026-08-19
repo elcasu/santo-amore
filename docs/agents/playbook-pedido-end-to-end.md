@@ -42,7 +42,9 @@ sequenceDiagram
 
 Fuente de verdad del pago: **webhook** `POST /api/mercadopago/webhook` (no confiar solo en la URL de retorno). Localhost no recibe notificaciones; hace falta URL pública (tunnel/deploy).
 
-Al `approved`: `order.status = paid` + `saleSnapshot` idempotente (`orderId` único, `channel: online`). Si el order ya está `paid`, el webhook no degrada el status (sí puede completar snapshot / `mpPaymentId`).
+Al `approved`: `order.status = paid` + `saleSnapshot` idempotente (`orderId` único, `channel: online`) + descuento de `stockQty` si `trackInventory` (no `made_to_order`), idempotente via `stockAppliedAt`. Si el order ya está `paid`, el webhook no degrada el status (sí puede completar snapshot / stock / `mpPaymentId`).
+
+Firma (`x-signature`): en **production** (`VERCEL_ENV`) hace falta `MERCADOPAGO_WEBHOOK_SECRET` (sin secret → 500). Firma inválida → 401. Local/preview sin secret: warn y sigue.
 
 Mapeo MP (`lib/mercadopago/map-payment-status.ts`): `approved→paid`, `rejected|cancelled→rejected`, `refunded|charged_back→cancelled`; estados intermedios dejan el order en `pending`.
 
@@ -51,7 +53,7 @@ Mapeo MP (`lib/mercadopago/map-payment-status.ts`): `approved→paid`, `rejected
 1. Login `/ops/login` (`OPS_PASSWORD`).
 2. `/ops/pedidos`: pedidos pagados primero.
 3. Avanzar fulfillment: `to_prepare` → `preparing` → `shipped` → `delivered`.
-4. Stock online: hoy **manual** en `/ops` productos (no auto al pagar). Offline sí descuenta al registrar venta.
+4. Stock online: al pagar (webhook `paid`), si `trackInventory`. Offline al registrar venta. Encargos (`made_to_order`) no descuentan. Ajuste manual sigue en `/ops` productos.
 5. Métricas: `/ops/metricas` (lee snapshots online + offline).
 
 ### 4. Atención (Chatwoot)
@@ -66,7 +68,9 @@ Mapeo MP (`lib/mercadopago/map-payment-status.ts`): `approved→paid`, `rejected
 | --- | --- |
 | Checkout 400 validación | `lib/checkout/validate-cart.ts`, `parse-request.ts` |
 | Preference / initPoint falla | `lib/mercadopago/client.ts`, `NEXT_PUBLIC_SITE_URL`, keys MP |
-| Pagó pero order sigue pending | Webhook, firma (`verify-signature`), `proxy.ts` (ruta MP excluida del site gate) |
+| Pagó pero order sigue pending | Webhook, firma (`webhook-auth` / `verify-signature`), `proxy.ts` (ruta MP excluida del site gate) |
+| Production webhook 500 sin procesar | Falta `MERCADOPAGO_WEBHOOK_SECRET` en Vercel |
+| Pagó y el catálogo sigue con stock | `lib/ops/stock.ts`, `order.stockAppliedAt`; `made_to_order` no descuenta |
 | Pending sin `mpPaymentId` | Webhook no llegó / no procesó |
 | Pending con `mpPaymentId` | Status MP no-`approved` (ver `map-payment-status`) |
 | Pagó sin métricas | `lib/ops/sale-snapshot.ts`; backfill `npm run backfill:sale-snapshots` |
@@ -79,7 +83,7 @@ Mapeo MP (`lib/mercadopago/map-payment-status.ts`): `approved→paid`, `rejected
 2. `app/api/checkout/route.ts` — ¿pending + preference?
 3. `lib/checkout/create-order.ts` — `externalReference`, `notification_url`, `back_urls`
 4. `lib/mercadopago/map-payment-status.ts` — por qué quedó pending
-5. `lib/ops/orders.ts` (+ doc `order` en Sanity) — `status`, ids MP, `externalReference`
+5. `lib/ops/orders.ts` (+ doc `order` en Sanity) — `status`, ids MP, `externalReference`, `stockAppliedAt`
 
 ## Checklist humano (no automatizar sin review)
 

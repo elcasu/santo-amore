@@ -3,10 +3,12 @@ import { NextResponse } from "next/server";
 import { createPaymentApi } from "@/lib/mercadopago/client";
 import { mapPaymentStatus } from "@/lib/mercadopago/map-payment-status";
 import { verifyMercadoPagoSignature } from "@/lib/mercadopago/verify-signature";
+import { resolveMercadoPagoWebhookAuth } from "@/lib/mercadopago/webhook-auth";
 import {
   ensureSaleSnapshotForOrder,
   fetchOrderForSaleSnapshot,
 } from "@/lib/ops/sale-snapshot";
+import { ensureStockAppliedForPaidOrder } from "@/lib/ops/stock";
 import { getWriteClient } from "@/sanity/lib/write-client";
 
 async function findOrderByExternalReference(externalReference: string) {
@@ -37,13 +39,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, skipped: true });
     }
 
-    const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
-    if (secret) {
+    const auth = resolveMercadoPagoWebhookAuth({
+      secret: process.env.MERCADOPAGO_WEBHOOK_SECRET,
+      vercelEnv: process.env.VERCEL_ENV,
+    });
+    if (auth.action === "reject_misconfigured") {
+      console.error(
+        "[mp-webhook] MERCADOPAGO_WEBHOOK_SECRET requerido en production",
+      );
+      return NextResponse.json(
+        { error: "Webhook misconfigured" },
+        { status: 500 },
+      );
+    }
+    if (auth.action === "verify") {
       const valid = verifyMercadoPagoSignature({
         xSignature: request.headers.get("x-signature"),
         xRequestId: request.headers.get("x-request-id"),
         dataId,
-        secret,
+        secret: auth.secret,
       });
       if (!valid) {
         console.warn("[mp-webhook] firma inválida");
@@ -92,6 +106,7 @@ export async function POST(request: Request) {
       } else {
         console.warn("[mp-webhook] no se pudo leer order para saleSnapshot", order._id);
       }
+      await ensureStockAppliedForPaidOrder(order._id);
     }
 
     return NextResponse.json({ ok: true });

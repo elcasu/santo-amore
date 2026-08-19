@@ -58,6 +58,14 @@ export const order = defineType({
       readOnly: true,
     }),
     defineField({
+      name: "stockAppliedAt",
+      title: "Stock descontado en",
+      type: "datetime",
+      readOnly: true,
+      description:
+        "Idempotencia: el webhook descuenta stockQty al pagar (trackInventory, no made_to_order).",
+    }),
+    defineField({
       name: "externalReference",
       title: "Referencia externa",
       type: "string",

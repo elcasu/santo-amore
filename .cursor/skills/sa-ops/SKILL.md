@@ -16,6 +16,7 @@ description: >-
 - Métricas leen **solo** `saleSnapshot` (append-only). Cambiar precio/`unitCost` del producto no reescribe histórico.
 - Pedidos online: documento `order` + fulfillment. Ventas offline: **solo** `saleSnapshot` (sin `order`).
 - Fulfillment solo en pedidos `status === "paid"`.
+- Stock tracked: online al `paid` (`lib/ops/stock.ts`); offline al registrar venta. `made_to_order` no descuenta. A 0 → `commerceStatus: sold_out`.
 - Responder clientes desde **Chatwoot**, no desde WhatsApp personal / `wa.me` del staff.
 - Lógica en `lib/ops/` con Vitest; APIs en `app/api/ops/*` usan `SANITY_API_WRITE_TOKEN`.
 - No inventar rutas ni archivos: si no está en **Rutas UI** o en este skill, no existe.
@@ -45,7 +46,7 @@ Estados: `to_prepare` → `preparing` → `shipped` → `delivered` (`lib/ops/or
 
 - Channels: `feria` | `local` | `whatsapp` | `other`.
 - `orderId` sintético `offline:{uuid}`, número `OFF-YYMMDD-XXXX`.
-- Descuenta `stockQty` si `trackInventory`; a 0 → `commerceStatus: sold_out`.
+- Descuenta `stockQty` si `trackInventory` y no es `made_to_order`; a 0 → `commerceStatus: sold_out`. Helper: `lib/ops/stock.ts`.
 - Entra a métricas junto con online.
 
 ## Métricas

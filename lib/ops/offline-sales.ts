@@ -3,6 +3,10 @@ import { getWriteClient } from "@/sanity/lib/write-client";
 
 import { getOpsSaleProduct } from "./products";
 import { computeSaleTotals } from "./sale-snapshot";
+import {
+  applyTrackedStockDeductions,
+  type StockDeductionInput,
+} from "./stock";
 import type { OfflineSaleChannel } from "./types";
 
 export type OfflineSaleItemInput = {
@@ -96,13 +100,7 @@ export async function createOfflineSale(
     unitCost?: number;
   }[] = [];
 
-  type StockDeduction = {
-    productId: string;
-    qty: number;
-    trackInventory: boolean;
-    currentStock: number | undefined;
-  };
-  const deductions: StockDeduction[] = [];
+  const deductions: StockDeductionInput[] = [];
 
   for (const [index, line] of input.items.entries()) {
     if (
@@ -138,6 +136,7 @@ export async function createOfflineSale(
       productId: product._id,
       qty: line.qty,
       trackInventory: product.trackInventory,
+      commerceStatus: product.commerceStatus,
       currentStock: product.stockQty,
     });
   }
@@ -162,42 +161,10 @@ export async function createOfflineSale(
     missingCostItemCount: totals.missingCostItemCount,
   });
 
-  // Snapshot primero; luego stock. Agrupar qty por producto por si hay líneas duplicadas.
-  const qtyByProduct = new Map<string, StockDeduction>();
-  for (const d of deductions) {
-    if (!d.trackInventory) continue;
-    const prev = qtyByProduct.get(d.productId);
-    if (prev) {
-      prev.qty += d.qty;
-    } else {
-      qtyByProduct.set(d.productId, { ...d });
-    }
-  }
-
-  const stockErrors: string[] = [];
-  for (const d of qtyByProduct.values()) {
-    try {
-      const current =
-        typeof d.currentStock === "number" && d.currentStock >= 0
-          ? d.currentStock
-          : 0;
-      const nextQty = Math.max(0, current - d.qty);
-      const set: Record<string, unknown> = { stockQty: nextQty };
-      if (nextQty === 0) {
-        set.commerceStatus = "sold_out";
-      }
-      await writeClient.patch(d.productId).set(set).commit();
-    } catch (error) {
-      console.error("[ops/offline-sales] stock patch failed", d.productId, error);
-      stockErrors.push(d.productId);
-    }
-  }
-
-  if (stockErrors.length > 0) {
-    console.warn(
-      `[ops/offline-sales] venta ${orderNumber} creada pero falló stock en: ${stockErrors.join(", ")}`,
-    );
-  }
+  // Snapshot primero; luego stock (trackInventory, no made_to_order).
+  await applyTrackedStockDeductions(deductions, {
+    logContext: `venta ${orderNumber}`,
+  });
 
   return {
     _id: doc._id,

@@ -2,7 +2,7 @@
 
 Documento vivo para que cualquier chat/agente retome el hilo sin perder decisiones.
 
-Última actualización: 2026-07-30 (ventas offline en /ops)
+Última actualización: 2026-08-19 (stock online al paid + firma webhook en production)
 
 ## Qué es
 
@@ -117,7 +117,7 @@ Mini app para el staff (sin Studio): stock, `commerceStatus`, fulfillment de ped
 - **Ventas offline:** `/ops/ventas` — registrar ventas fuera del ecommerce (feria / local / WhatsApp / otro)
   - Crea `saleSnapshot` con `channel` offline + `notes` opcional; `orderId` sintético `offline:{uuid}`, número `OFF-YYMMDD-XXXX`
   - No crea documento `order` (no mezcla con la cola de fulfillment)
-  - Descuenta `stockQty` si `trackInventory`; si llega a 0 → `commerceStatus: sold_out`
+  - Descuenta `stockQty` si `trackInventory` y no es `made_to_order`; si llega a 0 → `commerceStatus: sold_out`
   - Entra a métricas junto con las ventas online (mismo `saleSnapshot`)
   - API: `GET/POST /api/ops/offline-sales`
 - **Días especiales:** singleton Sanity `opsSpecialDays` (Studio → “Días especiales”)
@@ -131,7 +131,7 @@ Mini app para el staff (sin Studio): stock, `commerceStatus`, fulfillment de ped
   - Env: `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `CRON_SECRET` (`npx web-push generate-vapid-keys`)
   - iOS: solo con la PWA agregada a inicio (Safari 16.4+)
 - **Inbox:** link externo a Chatwoot (`NEXT_PUBLIC_OPS_INBOX_URL`) en la nav; en detalle de pedido → “Contactar en inbox” + copiar teléfono (buscar en Chatwoot). **No** abrir `wa.me` al cliente desde el celular personal del staff
-- No descuenta stock automático al pagar (manual en `/ops` por ahora)
+- Stock online: se descuenta al webhook `paid` si `trackInventory` (idempotente `stockAppliedAt`). `made_to_order` no descuenta. Ajuste manual sigue en `/ops` productos.
 - **PWA instalable:** manifest + SW en `/ops` (`public/ops/manifest.webmanifest`, `public/ops/sw.js`)
   - Android/Chrome: banner “Instalar” o menú → Instalar app
   - iPhone/Safari: Compartir → Agregar a pantalla de inicio
@@ -165,7 +165,7 @@ Mini app para el staff (sin Studio): stock, `commerceStatus`, fulfillment de ped
   - Add: ficha de producto (`AddToCart`); respeta `maxPerOrder` / stock
 - **Checkout:** `/checkout` → `POST /api/checkout` valida carrito (precios/stock server-side) → crea `order` (`pending`) en Sanity → preference MercadoPago → redirect `init_point`
   - Retornos: `/pedido/exito` (limpia carrito), `/pedido/pendiente`, `/pedido/fallo`
-  - Webhook: `POST /api/mercadopago/webhook` (excluido del site gate); actualiza `order` a `paid`/`rejected` y crea `saleSnapshot` si aprobó
+  - Webhook: `POST /api/mercadopago/webhook` (excluido del site gate); actualiza `order` a `paid`/`rejected`, crea `saleSnapshot` si aprobó y descuenta stock tracked (`stockAppliedAt`)
   - Envío: datos capturados; costo a coordinar (sin cálculo en MVP)
 - **Pedidos:** documento `order` en Studio (snapshot de ítems + customer/shipping + ids MP + `fulfillmentStatus`); campos financieros read-only
 - **Analítica:** `saleSnapshot` append-only; métricas en `/ops/metricas`
@@ -214,7 +214,7 @@ Roadmap y vocabulario (rule / skill / subagente / automation / SDK): [`docs/agen
 3. Probar checkout en sandbox MP + webhook (URL pública; localhost no recibe notificaciones)
 4. Cargar contenido real en Sanity y `USE_SANITY_MOCKS=false`
 5. Pulir home/catálogo vs Stitch; opcional: costo de envío / email de confirmación
-6. (Ops) descontar `stockQty` automático al marcar pedido `paid`
+6. Confirmar `MERCADOPAGO_WEBHOOK_SECRET` en Vercel Production (sin eso el webhook responde 500)
 7. Cargar `unitCost` en productos y correr `npm run backfill:sale-snapshots` si ya hay ventas pagadas
 
 ## Staging password (sin plan Vercel pago)
