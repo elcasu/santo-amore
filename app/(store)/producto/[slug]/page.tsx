@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { AddToCart } from "@/components/cart/add-to-cart";
 import { ProductCard } from "@/components/product-card";
+import { WhatsAppContactCta } from "@/components/whatsapp-contact-cta";
 import { getProductPurchaseState } from "@/lib/commerce";
 import {
   formatPriceArs,
@@ -11,6 +12,7 @@ import {
   getProducts,
 } from "@/lib/data";
 import type { PortableTextBlock } from "@/lib/types/content";
+import { buildWhatsAppUrl, productWhatsAppText } from "@/lib/whatsapp";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -26,12 +28,15 @@ export default async function ProductPage({ params }: Props) {
     .filter((p) => p.slug !== product.slug)
     .slice(0, 3);
   const galleryImages = (product.images ?? []).filter((img) => img?.src);
+  const whatsappHref = buildWhatsAppUrl({
+    text: productWhatsAppText(product.title, purchase.status),
+  });
 
   return (
     <div className="mx-auto max-w-[1280px] px-5 py-16 md:px-16">
       <div className="grid gap-12 lg:grid-cols-2">
         <div>
-          <div className="relative aspect-square overflow-hidden rounded-xl bg-surface-container">
+          <div className="relative aspect-square overflow-hidden rounded-sm bg-surface-container">
             {product.mainImage?.src ? (
               <Image
                 src={product.mainImage.src}
@@ -43,7 +48,7 @@ export default async function ProductPage({ params }: Props) {
               />
             ) : null}
             {purchase.badgeLabel ? (
-              <span className="absolute left-4 top-4 rounded bg-foreground/90 px-3 py-1.5 font-sans text-[11px] font-bold uppercase tracking-[0.12em] text-white">
+              <span className="absolute left-4 top-4 rounded-sm bg-background/90 px-3 py-1.5 font-sans text-[11px] text-foreground">
                 {purchase.badgeLabel}
               </span>
             ) : null}
@@ -53,7 +58,7 @@ export default async function ProductPage({ params }: Props) {
               {galleryImages.slice(0, 3).map((img) => (
                 <div
                   key={img.src}
-                  className="relative aspect-square overflow-hidden rounded-lg bg-surface-container"
+                  className="relative aspect-square overflow-hidden rounded-sm bg-surface-container"
                 >
                   <Image
                     src={img.src}
@@ -70,11 +75,11 @@ export default async function ProductPage({ params }: Props) {
 
         <div className="flex flex-col justify-center">
           {product.collectionLabel ? (
-            <p className="mb-3 font-sans text-[12px] font-bold uppercase tracking-[0.14em] text-primary">
+            <p className="mb-3 font-sans text-sm text-secondary">
               {product.collectionLabel}
             </p>
           ) : null}
-          <h1 className="mb-4 font-display text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+          <h1 className="mb-4 font-display text-4xl font-medium tracking-tight text-foreground md:text-5xl">
             {product.title}
           </h1>
           {typeof product.price === "number" ? (
@@ -104,30 +109,52 @@ export default async function ProductPage({ params }: Props) {
             </p>
           ) : null}
 
+          {purchase.status === "made_to_order" ? (
+            <p className="mb-6 max-w-lg font-sans text-sm leading-relaxed text-secondary">
+              Esta pieza se elabora a pedido. El tiempo estimado es una guía del
+              taller; si preferís coordinar, escribinos.
+            </p>
+          ) : null}
+
           {purchase.canPurchase ? (
             <AddToCart product={product} ctaLabel={purchase.ctaLabel} />
           ) : purchase.status === "coming_soon" ? (
+            <p className="font-sans text-sm text-secondary">
+              Todavía no está a la venta. Dejanos tu consulta y te avisamos.
+            </p>
+          ) : (
+            <p className="font-sans text-sm text-secondary">
+              No hay unidades ahora. Si te interesa, consultanos.
+            </p>
+          )}
+
+          {whatsappHref ? (
+            <WhatsAppContactCta
+              text={productWhatsAppText(product.title, purchase.status)}
+              label={
+                purchase.status === "made_to_order"
+                  ? "Encargar por WhatsApp"
+                  : purchase.status === "coming_soon"
+                    ? "Avisame por WhatsApp"
+                    : purchase.status === "sold_out"
+                      ? "Consultar por WhatsApp"
+                      : "Consultar por WhatsApp"
+              }
+              variant="secondary"
+              className="mt-4"
+            />
+          ) : purchase.canPurchase ? null : (
             <Link
               href="/contacto"
-              className="inline-flex w-full items-center justify-center rounded border border-foreground px-8 py-4 font-display text-lg font-semibold text-foreground transition-colors hover:bg-foreground hover:text-white sm:w-auto"
+              className="mt-4 inline-flex w-full items-center justify-center rounded-sm border border-foreground/20 px-8 py-3.5 font-display text-lg font-medium text-foreground transition-colors hover:border-primary hover:text-primary sm:w-auto"
             >
-              {purchase.ctaLabel}
+              {purchase.status === "coming_soon" ? "Avisame" : "Contacto"}
             </Link>
-          ) : (
-            <button
-              type="button"
-              disabled
-              className="inline-flex w-full cursor-not-allowed items-center justify-center rounded bg-surface-container-high px-8 py-4 font-display text-lg font-semibold text-secondary sm:w-auto"
-            >
-              {purchase.ctaLabel}
-            </button>
           )}
 
           {product.body?.length ? (
             <div className="mt-12 space-y-4 border-t border-outline-variant/40 pt-10">
-              <h2 className="font-display text-2xl font-semibold">
-                The Craftsmanship
-              </h2>
+              <h2 className="font-display text-2xl font-medium">El oficio</h2>
               {product.body.map((block) => (
                 <PortableParagraph key={block._key} block={block} />
               ))}
@@ -138,11 +165,11 @@ export default async function ProductPage({ params }: Props) {
 
       {related.length ? (
         <section className="mt-24 border-t border-outline-variant/40 pt-16">
-          <h2 className="mb-2 font-display text-2xl font-semibold">
-            Related Treasures
+          <h2 className="mb-2 font-display text-2xl font-medium">
+            Otras piezas
           </h2>
           <p className="mb-10 font-sans text-secondary">
-            Otras piezas para acompañar tu colección.
+            Del mismo atelier, para mirar junto a esta.
           </p>
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((item) => (

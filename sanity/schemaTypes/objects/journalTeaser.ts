@@ -2,14 +2,15 @@ import { defineField, defineType } from "sanity";
 
 export const journalTeaser = defineType({
   name: "journalTeaser",
-  title: "Journal teaser",
+  title: "Oficio / presencia",
   type: "object",
   fields: [
     defineField({
       name: "eyebrow",
       title: "Eyebrow",
       type: "string",
-      initialValue: "The Journal",
+      initialValue: "El taller",
+      description: "Ej: El taller",
     }),
     defineField({
       name: "title",

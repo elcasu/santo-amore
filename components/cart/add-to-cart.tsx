@@ -93,7 +93,7 @@ export function AddToCart({ product, ctaLabel }: Props) {
         type="button"
         onClick={handleAdd}
         disabled={!canAdd}
-        className="inline-flex flex-1 items-center justify-center rounded bg-foreground px-8 py-4 font-display text-lg font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-secondary disabled:opacity-100 sm:flex-none sm:min-w-[220px]"
+        className="inline-flex flex-1 items-center justify-center rounded-sm bg-primary px-8 py-4 font-display text-lg font-medium text-on-primary transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:bg-surface-container-high disabled:text-secondary disabled:opacity-100 sm:flex-none sm:min-w-[220px]"
       >
         {remaining <= 0 ? "Máximo en carrito" : ctaLabel}
       </button>

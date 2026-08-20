@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildCatalogHref,
+  filterProductsByAvailability,
   getEffectiveCommerceStatus,
   getProductPurchaseState,
+  parseAvailabilityFilter,
 } from "@/lib/commerce";
 
 describe("getEffectiveCommerceStatus", () => {
@@ -118,5 +121,60 @@ describe("getProductPurchaseState", () => {
     ).toMatchObject({
       stockHint: "4 disponibles",
     });
+  });
+});
+
+describe("parseAvailabilityFilter", () => {
+  it("accepts known filters and falls back to todas", () => {
+    expect(parseAvailabilityFilter("listas")).toBe("listas");
+    expect(parseAvailabilityFilter("encargo")).toBe("encargo");
+    expect(parseAvailabilityFilter("proximamente")).toBe("proximamente");
+    expect(parseAvailabilityFilter("todas")).toBe("todas");
+    expect(parseAvailabilityFilter("otro")).toBe("todas");
+    expect(parseAvailabilityFilter(undefined)).toBe("todas");
+  });
+});
+
+describe("buildCatalogHref", () => {
+  it("omits default disponibilidad", () => {
+    expect(buildCatalogHref()).toBe("/catalogo");
+    expect(buildCatalogHref({ disponibilidad: "todas" })).toBe("/catalogo");
+  });
+
+  it("keeps categoria and disponibilidad together", () => {
+    expect(
+      buildCatalogHref({
+        categoria: "accesorios",
+        disponibilidad: "encargo",
+      }),
+    ).toBe("/catalogo?categoria=accesorios&disponibilidad=encargo");
+  });
+});
+
+describe("filterProductsByAvailability", () => {
+  const products = [
+    { commerceStatus: "available" as const, trackInventory: true, stockQty: 2 },
+    { commerceStatus: "available" as const, trackInventory: true, stockQty: 0 },
+    { commerceStatus: "made_to_order" as const, trackInventory: false },
+    { commerceStatus: "coming_soon" as const, trackInventory: false },
+  ];
+
+  it("returns all products for todas", () => {
+    expect(filterProductsByAvailability(products, "todas")).toHaveLength(4);
+  });
+
+  it("keeps only in-stock available items for listas", () => {
+    expect(filterProductsByAvailability(products, "listas")).toEqual([
+      products[0],
+    ]);
+  });
+
+  it("filters encargos and próximamente", () => {
+    expect(filterProductsByAvailability(products, "encargo")).toEqual([
+      products[2],
+    ]);
+    expect(filterProductsByAvailability(products, "proximamente")).toEqual([
+      products[3],
+    ]);
   });
 });

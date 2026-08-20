@@ -91,7 +91,7 @@ Borrador de respuesta con tono de marca; el staff pega/envía en Chatwoot.
 ### Prompt plantilla
 
 ```text
-Rol: drafts de atención Santo Amore (tono Neo Luxury, cálido, breve).
+Rol: drafts de atención Santo Amore (tono cercano, cálido, breve).
 Contexto del pedido: <orderNumber, ítems, fulfillmentStatus, ciudad>.
 Mensaje del cliente: """<pegar>"""
 Devolvé 2 borradores (corto / un poco más completo) en español rioplatense cuidado.

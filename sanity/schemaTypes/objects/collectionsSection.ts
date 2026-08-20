@@ -2,7 +2,7 @@ import { defineField, defineType } from "sanity";
 
 export const collectionsSection = defineType({
   name: "collectionsSection",
-  title: "Featured Collections",
+  title: "Vitrina",
   type: "object",
   fields: [
     defineField({

@@ -1,9 +1,9 @@
 import { defineField, defineType } from "sanity";
 
-/** Ítem de Featured Collections: producto del catálogo + layout. */
+/** Ítem de vitrina: producto del catálogo + layout. */
 export const collectionDrop = defineType({
   name: "collectionDrop",
-  title: "Producto en Featured Collections",
+  title: "Producto en vitrina",
   type: "object",
   fields: [
     defineField({
@@ -17,7 +17,7 @@ export const collectionDrop = defineType({
       name: "label",
       title: "Label",
       type: "string",
-      description: "Opcional. Ej: Drop 01. Si vacío, se usa el label de colección del producto.",
+      description: "Opcional. Ej: Encargo. Si vacío, se usa el label de colección del producto.",
     }),
     defineField({
       name: "description",
@@ -51,7 +51,7 @@ export const collectionDrop = defineType({
     prepare({ title, subtitle, media }) {
       return {
         title: title || "Sin producto",
-        subtitle: subtitle || "Featured collection",
+        subtitle: subtitle || "Vitrina",
         media,
       };
     },

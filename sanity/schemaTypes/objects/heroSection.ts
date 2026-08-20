@@ -9,7 +9,7 @@ export const heroSection = defineType({
       name: "eyebrow",
       title: "Eyebrow",
       type: "string",
-      description: "Ej: The 2026 Curation",
+      description: "Ej: Atelier en Mar del Plata",
     }),
     defineField({
       name: "title",

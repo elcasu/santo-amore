@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Montserrat } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
   display: "swap",
 });
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s | Santo Amore",
   },
   description:
-    "Santo Amore — accesorios y home con estética Neo Luxury refined.",
+    "Santo Amore — accesorios y home hechos a mano en Mar del Plata. Piezas listas para llevar y encargos a pedido.",
 };
 
 export default function RootLayout({
@@ -31,7 +31,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${montserrat.variable} ${inter.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full font-sans text-foreground">{children}</body>
     </html>

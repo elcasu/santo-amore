@@ -5,6 +5,7 @@ import {
   formatPhoneDisplay,
   getOpsInboxUrl,
   normalizeWhatsAppPhone,
+  productWhatsAppText,
 } from "@/lib/whatsapp";
 
 describe("normalizeWhatsAppPhone", () => {
@@ -62,5 +63,22 @@ describe("getOpsInboxUrl", () => {
   it("rejects invalid protocols", () => {
     process.env.NEXT_PUBLIC_OPS_INBOX_URL = "javascript:alert(1)";
     expect(getOpsInboxUrl()).toBeNull();
+  });
+});
+
+describe("productWhatsAppText", () => {
+  it("varies copy by purchase status", () => {
+    expect(productWhatsAppText("Bowl Atrium", "made_to_order")).toBe(
+      "Hola, quiero encargar Bowl Atrium.",
+    );
+    expect(productWhatsAppText("Set Teiger", "coming_soon")).toBe(
+      "Hola, avisame cuando esté disponible Set Teiger.",
+    );
+    expect(productWhatsAppText("Bandeja", "sold_out")).toBe(
+      "Hola, consulto por Bandeja.",
+    );
+    expect(productWhatsAppText("Aurelia", "available")).toBe(
+      "Hola, consulta por Aurelia.",
+    );
   });
 });

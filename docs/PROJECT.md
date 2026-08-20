@@ -2,23 +2,23 @@
 
 Documento vivo para que cualquier chat/agente retome el hilo sin perder decisiones.
 
-Última actualización: 2026-08-19 (stock online al paid + firma webhook en production)
+Última actualización: 2026-08-20 (storefront atelier: paleta cálida + dos caminos de compra)
 
 ## Qué es
 
-Sitio web para **Santo Amore**: negocio de venta de accesorios, pulseras, collares y piezas para el hogar (Accessories / Home). Marca con eslogan **“Artisanal Soul, Modern Grace”**. Dirección visual actual: **Neo Luxury refined** (Stitch).
+Sitio web para **Santo Amore**: negocio de venta de accesorios, pulseras, collares y piezas para el hogar (Accessories / Home). Marca con eslogan **“Artisanal Soul, Modern Grace”**. Dirección visual actual: **atelier cercano** (no el template Neo Luxury de Stitch).
 
 ## Stack
 
 | Capa           | Elección                               | Notas                                        |
 | -------------- | -------------------------------------- | -------------------------------------------- |
 | Frontend       | **Next.js 16** + React 19 + Tailwind 4 | Repo `santo-amore`                           |
-| Fuentes        | Montserrat (display) + Inter (body)    | Stitch Neo Luxury refined                    |
+| Fuentes        | Fraunces (display) + Inter (body)      | Atelier cercano                              |
 | Hosting        | **Vercel**                             | Ya hay deploy en producción                  |
 | CMS            | **Sanity** (plan Free)                 | Studio embebido en `/studio` (`next-sanity`) |
 | Datos UI       | Mocks tipados → Sanity                 | Flag `NEXT_PUBLIC_USE_SANITY_MOCKS`          |
 | Pagos           | **MercadoPago Checkout Pro**           | Preference + webhook + `order` en Sanity     |
-| Diseño         | **Google Stitch**                      | Fuente de verdad visual                      |
+| Diseño         | Storefront propio (atelier)            | Stitch queda como archivo histórico          |
 
 ### Repo / remoto
 
@@ -32,13 +32,15 @@ Sitio web para **Santo Amore**: negocio de venta de accesorios, pulseras, collar
 3. Cablear Sanity real (`NEXT_PUBLIC_USE_SANITY_MOCKS=false`)
 4. **Ahora — Checkout MercadoPago** (`/checkout`, webhook, pedidos)
 
-## Stitch (diseños)
+## Stitch (archivo)
+
+Pantallas originales en Google Stitch; **ya no son la fuente de verdad visual** del storefront.
 
 - App: [stitch.withgoogle.com](https://stitch.withgoogle.com/)
 - Proyecto: **Santo Amore Brand & E-commerce**
 - Resource / project id: `2065194152101387591`
-- Dirección visual elegida: **Neo Luxury refined**
-- Pantallas clave:
+- Dirección histórica: **Neo Luxury refined** (reemplazada en 2026-08-20 por atelier cercano)
+- Pantallas clave (archivo):
   - Catálogo Neo-Luxury Refinado: `…/screens/ad58cf0deb8544509eb8d41294d6ac59`
   - Detalle Neo-Luxury: `…/screens/480f043ffa964d158cdbff6fe7b1dd22`
   - Catálogo Neo-Luxury (sección dinámica): `…/screens/72848a46a0304d96ab8b3ca6989606e3`
@@ -55,26 +57,28 @@ A veces Settings → MCP muestra `stitch` en verde pero el **agent no recibe** l
 2. Si no: HTTP JSON-RPC a `https://stitch.googleapis.com/mcp` con header `X-Goog-Api-Key` leído de `~/.cursor/mcp.json` (nunca al repo).
 3. Exports temporales en `.tmp-stitch/` (gitignored).
 
-## Design tokens (Neo Luxury refined)
+## Design tokens (atelier cercano)
 
 ```text
-background / surface:  #fbf9f8
-surface-container:     #efeded
-surface-container-high:#e9e8e7
-primary:               #b71511
-primary-container:     #db3327
-primary-fixed-dim:     #ffb4a9
-secondary:             #5f5e5e
-on-surface:            #1b1c1c
-outline-variant:       #e5beb8
+background / surface:  #fff8f5
+surface-container:     #f5ece7
+surface-container-high:#efe4dc
+primary:               #7e000e
+primary-container:     #a01220
+primary-fixed-dim:     #c9898a
+secondary:             #735c00
+on-surface:            #1e1b18
+outline-variant:       #e5d0c8
 ```
 
-### UI actual (store Neo Luxury)
+### UI actual (store atelier)
 
 - Rutas: `/` home, `/catalogo`, `/producto/[slug]`, `/carrito`, `/checkout`, `/pedido/exito|pendiente|fallo`, `/nosotros`, `/envios`, `/contacto`, `/ops` (staff: productos, pedidos, ventas offline, métricas)
-- Shell: header fijo blur + ícono carrito (drawer) + footer links + FAB WhatsApp (si hay `NEXT_PUBLIC_WHATSAPP_PHONE`)
-- Assets mock: `public/brand/neo-*.png|jpg`
-- Tipografía: Montserrat + Inter
+- Home: bienvenida (pieza contenida) → dos caminos (listo / encargo) → piezas → oficio/presencia en Mar del Plata → vitrina
+- Catálogo: filtros de categoría + disponibilidad (`?disponibilidad=listas|encargo|proximamente`)
+- Shell: header fijo blur + Piezas/Encargos/Nosotros/Contacto + ícono carrito (drawer) + footer “Atelier en {location}” + FAB WhatsApp (si hay `NEXT_PUBLIC_WHATSAPP_PHONE`)
+- Assets mock: `public/brand/neo-*.png|jpg` (fotos reusadas; layout ya no las trata como campaña)
+- Tipografía: Fraunces + Inter
 - `/en-construccion` mantiene la landing Artisanal previa
 
 ## Decisiones de producto
@@ -213,7 +217,7 @@ Roadmap y vocabulario (rule / skill / subagente / automation / SDK): [`docs/agen
 2. Completar alta WhatsApp (checklist arriba) y setear `NEXT_PUBLIC_WHATSAPP_PHONE` + `NEXT_PUBLIC_OPS_INBOX_URL`
 3. Probar checkout en sandbox MP + webhook (URL pública; localhost no recibe notificaciones)
 4. Cargar contenido real en Sanity y `USE_SANITY_MOCKS=false`
-5. Pulir home/catálogo vs Stitch; opcional: costo de envío / email de confirmación
+5. Opcional: costo de envío / email de confirmación
 6. Confirmar `MERCADOPAGO_WEBHOOK_SECRET` en Vercel Production (sin eso el webhook responde 500)
 7. Cargar `unitCost` en productos y correr `npm run backfill:sale-snapshots` si ya hay ventas pagadas
 

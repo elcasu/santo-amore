@@ -190,7 +190,7 @@ export const product = defineType({
       name: "collectionLabel",
       title: "Label de colección",
       type: "string",
-      description: "Ej: New Heritage Collection",
+      description: "Ej: Muñeca, Mesa, Encargo",
     }),
     defineField({
       name: "description",

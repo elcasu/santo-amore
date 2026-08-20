@@ -23,10 +23,8 @@ export default async function CmsPage({ params }: Props) {
 
   return (
     <article className="mx-auto max-w-3xl px-5 py-16 md:px-16">
-      <p className="mb-3 font-sans text-[12px] font-bold uppercase tracking-[0.14em] text-primary">
-        Santo Amore
-      </p>
-      <h1 className="mb-4 font-display text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+      <p className="mb-3 font-sans text-sm text-secondary">Santo Amore</p>
+      <h1 className="mb-4 font-display text-4xl font-medium tracking-tight text-foreground md:text-5xl">
         {page.title}
       </h1>
       {page.excerpt ? (

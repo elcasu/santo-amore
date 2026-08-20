@@ -21,17 +21,17 @@ export const home = defineType({
     }),
     defineField({
       name: "collections",
-      title: "Featured Collections",
+      title: "Vitrina",
       type: "collectionsSection",
     }),
     defineField({
       name: "journal",
-      title: "Journal",
+      title: "Oficio / presencia",
       type: "journalTeaser",
     }),
     defineField({
       name: "featuredProducts",
-      title: "Piezas destacadas",
+      title: "Piezas",
       type: "featuredProductsSection",
     }),
   ],

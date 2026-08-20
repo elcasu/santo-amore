@@ -9,11 +9,8 @@ export function ProductCard({ product }: { product: Product }) {
   const purchase = getProductPurchaseState(product);
 
   return (
-    <Link
-      href={`/producto/${product.slug}`}
-      className="group block"
-    >
-      <div className="relative aspect-square overflow-hidden rounded bg-surface-container transition-transform duration-500 ease-out group-hover:-translate-y-1 motion-reduce:transition-none motion-reduce:group-hover:translate-y-0">
+    <Link href={`/producto/${product.slug}`} className="group block">
+      <div className="relative aspect-square overflow-hidden rounded-sm bg-surface-container transition-transform duration-500 ease-out group-hover:-translate-y-1 motion-reduce:transition-none motion-reduce:group-hover:translate-y-0">
         {product.mainImage?.src ? (
           <Image
             src={product.mainImage.src}
@@ -23,23 +20,19 @@ export function ProductCard({ product }: { product: Product }) {
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
         ) : null}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-foreground/0 transition-colors duration-500 group-hover:bg-foreground/10 motion-reduce:transition-none motion-reduce:group-hover:bg-foreground/0"
-        />
         {purchase.badgeLabel ? (
-          <span className="absolute left-3 top-3 rounded bg-foreground/90 px-2.5 py-1 font-sans text-[10px] font-bold uppercase tracking-[0.12em] text-white">
+          <span className="absolute left-3 top-3 rounded-sm bg-background/90 px-2.5 py-1 font-sans text-[11px] text-foreground">
             {purchase.badgeLabel}
           </span>
         ) : null}
       </div>
       <div className="mt-4 space-y-1">
         {product.collectionLabel ? (
-          <p className="font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-primary">
+          <p className="font-sans text-xs text-secondary">
             {product.collectionLabel}
           </p>
         ) : null}
-        <h3 className="font-display text-lg font-semibold text-foreground">
+        <h3 className="font-display text-lg font-medium text-foreground">
           {product.title}
         </h3>
         {typeof product.price === "number" ? (
@@ -57,6 +50,9 @@ export function ProductCard({ product }: { product: Product }) {
               formatPriceArs(product.price)
             )}
           </p>
+        ) : null}
+        {purchase.stockHint ? (
+          <p className="font-sans text-xs text-secondary">{purchase.stockHint}</p>
         ) : null}
       </div>
     </Link>

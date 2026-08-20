@@ -26,13 +26,13 @@ export const mockCategories: Category[] = [
     _id: "cat-accesorios",
     title: "Accesorios",
     slug: "accesorios",
-    description: "Piezas para acompañar cada gesto.",
+    description: "Pulseras, collares y piezas para llevar.",
   },
   {
     _id: "cat-home",
     title: "Home",
     slug: "home",
-    description: "Objetos con presencia para el hogar.",
+    description: "Objetos para la mesa y la casa.",
   },
 ];
 
@@ -43,7 +43,7 @@ export const mockProducts: Product[] = [
     slug: "brazalete-aurelia",
     sku: "SA-AUR-01",
     price: 425000,
-    collectionLabel: "New Heritage Collection",
+    collectionLabel: "Muñeca",
     featured: true,
     commerceStatus: "available",
     trackInventory: true,
@@ -82,7 +82,7 @@ export const mockProducts: Product[] = [
     sku: "SA-VED-01",
     price: 289000,
     compareAtPrice: 320000,
-    collectionLabel: "Pure Form",
+    collectionLabel: "Cuello",
     featured: true,
     commerceStatus: "available",
     trackInventory: true,
@@ -102,7 +102,7 @@ export const mockProducts: Product[] = [
     slug: "set-anillos-teiger",
     sku: "SA-TEI-01",
     price: 198000,
-    collectionLabel: "Golden Hour",
+    collectionLabel: "Mano",
     featured: true,
     commerceStatus: "coming_soon",
     comingSoonLabel: "Próximamente · Agosto",
@@ -121,7 +121,7 @@ export const mockProducts: Product[] = [
     slug: "bowl-atrium",
     sku: "SA-ATR-01",
     price: 156000,
-    collectionLabel: "Home",
+    collectionLabel: "Mesa",
     featured: false,
     commerceStatus: "made_to_order",
     leadTimeDays: 21,
@@ -141,7 +141,7 @@ export const mockProducts: Product[] = [
     slug: "bandeja-golden-hour",
     sku: "SA-GOL-01",
     price: 212000,
-    collectionLabel: "Home",
+    collectionLabel: "Mesa",
     featured: false,
     commerceStatus: "sold_out",
     trackInventory: false,
@@ -159,14 +159,14 @@ export const mockPages: Page[] = [
     _id: "page-nosotros",
     title: "Nosotros",
     slug: "nosotros",
-    excerpt: "Artisanal Soul, Modern Grace.",
+    excerpt: "Atelier de accesorios y home en Mar del Plata.",
     body: [
       block(
-        "Santo Amore nace del encuentro entre oficio artesanal y siluetas contemporáneas. Diseñamos accesorios y piezas para el hogar con presencia, calidez y detalle.",
+        "Santo Amore nace del oficio: accesorios y piezas para el hogar hechas a mano, con siluetas contemporáneas.",
         "n1",
       ),
       block(
-        "Cada colección busca el peso de lo hecho a mano sin renunciar a una estética clara y actual.",
+        "Trabajamos a escala chica — locales, ferias y encargos — y vendemos también por la web. Si estás en Mar del Plata, escribinos y coordinamos.",
         "n2",
       ),
     ],
@@ -208,23 +208,23 @@ export const mockPages: Page[] = [
 export const mockFeaturedDrops: FeaturedDrop[] = [
   {
     id: "drop-golden",
-    label: "Drop 01",
+    label: "Mesa",
     span: "wide",
-    description: "Accesorios atemporales para la luz del atardecer.",
+    description: "Para rituales de mesa, cuando vuelva al taller.",
     product: mockProducts[4], // Bandeja Golden Hour
   },
   {
     id: "drop-atrium",
-    label: "Drop 02",
+    label: "Encargo",
     span: "tall",
-    description: "Formas arquitectónicas y contraste sereno.",
+    description: "Cerámica a pedido, con tiempo de elaboración.",
     product: mockProducts[3], // Bowl Atrium
   },
   {
     id: "drop-pure",
-    label: "Drop 03",
+    label: "Listo",
     span: "square",
-    description: "Siluetas limpias, presencia marcada.",
+    description: "Una pieza central, disponible ahora.",
     product: mockProducts[1], // Colgante Veda
   },
 ];
@@ -236,34 +236,36 @@ export const mockSiteSettings: SiteSettings = {
 
 export const mockHome: HomePage = {
   hero: {
-    eyebrow: "The 2026 Curation",
+    eyebrow: "Atelier en Mar del Plata",
     title: "Artisanal Soul,",
     titleHighlight: "Modern Grace.",
     subtitle:
-      "Descubrí una colección donde el oficio artesanal encuentra siluetas contemporáneas. Accesorios y home con presencia.",
+      "Accesorios y piezas para el hogar, hechas a mano. Algunas listas para llevar; otras, a pedido.",
     backgroundImage: {
       src: "/brand/neo-drop-atrium.png",
-      alt: "",
+      alt: "Bowl Atrium sobre mesa",
     },
-    primaryCta: { label: "Ver catálogo", href: "/catalogo" },
-    secondaryCta: { label: "Heritage", href: "/nosotros" },
+    primaryCta: { label: "Ver piezas", href: "/catalogo" },
+    secondaryCta: {
+      label: "Encargar",
+      href: "/catalogo?disponibilidad=encargo",
+    },
   },
   collections: {
-    title: "Featured Collections",
-    description:
-      "Drops de temporada, curados con estética Neo Luxury refined.",
-    exploreCta: { label: "Explorar todo", href: "/catalogo" },
+    title: "En la mesa",
+    description: "Una vitrina chica: lo que está en el taller ahora.",
+    exploreCta: { label: "Ver todas", href: "/catalogo" },
     drops: mockFeaturedDrops,
   },
   journal: {
-    eyebrow: "The Journal",
-    title: "Behind the Seams: The Hand of the Artist",
-    body: "Oficio, materia y gesto — el alma artesanal detrás de cada pieza Santo Amore.",
-    cta: { label: "Leer más →", href: "/nosotros" },
+    eyebrow: "El taller",
+    title: "Oficio en Mar del Plata",
+    body: "Trabajamos a escala chica: locales, ferias y encargos por WhatsApp. Si estás en la ciudad, escribinos y coordinamos.",
+    cta: { label: "Conocenos", href: "/nosotros" },
   },
   featuredProducts: {
-    title: "Piezas destacadas",
-    viewAllCta: { label: "Ver todas", href: "/catalogo" },
+    title: "Piezas",
+    viewAllCta: { label: "Ver catálogo", href: "/catalogo" },
     products: mockProducts.filter((p) => p.featured).slice(0, 3),
   },
 };

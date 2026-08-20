@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  /* Neo Luxury Refined (Stitch) */
-  --background: #fbf9f8;
-  --foreground: #1b1c1c;
-  --primary: #b71511;
-  --primary-container: #db3327;
-  --primary-fixed-dim: #ffb4a9;
-  --secondary: #5f5e5e;
-  --surface: #fbf9f8;
-  --surface-container: #efeded;
-  --surface-container-high: #e9e8e7;
+  /* Atelier cercano — Artisanal Soul, Modern Grace */
+  --background: #fff8f5;
+  --foreground: #1e1b18;
+  --primary: #7e000e;
+  --primary-container: #a01220;
+  --primary-fixed-dim: #c9898a;
+  --secondary: #735c00;
+  --surface: #fff8f5;
+  --surface-container: #f5ece7;
+  --surface-container-high: #efe4dc;
   --muted: #5c403c;
   --outline: #906f6b;
-  --outline-variant: #e5beb8;
-  --tertiary-muted: #5d5c58;
+  --outline-variant: #e5d0c8;
+  --tertiary-muted: #5d5348;
   --on-primary: #ffffff;
 }
 
@@ -34,7 +34,7 @@
   --color-tertiary-muted: var(--tertiary-muted);
   --color-on-primary: var(--on-primary);
   --font-sans: var(--font-inter);
-  --font-display: var(--font-montserrat);
+  --font-display: var(--font-fraunces);
 }
 
 body {
@@ -48,7 +48,7 @@ body {
   inset: 0;
   pointer-events: none;
   z-index: 50;
-  opacity: 0.03;
+  opacity: 0.045;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
@@ -84,8 +84,8 @@ body {
 }
 
 .hover-lift:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px rgba(30, 27, 24, 0.08);
 }
 
 @media (prefers-reduced-motion: reduce) {

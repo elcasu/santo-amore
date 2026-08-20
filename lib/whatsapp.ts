@@ -1,3 +1,5 @@
+import type { CommerceStatus } from "@/lib/types/content";
+
 /** Digits only (E.164 without +), e.g. 54911… */
 export function normalizeWhatsAppPhone(raw: string | undefined | null): string | null {
   if (!raw) return null;
@@ -47,6 +49,22 @@ export function getOpsInboxUrl(): string | null {
     return parsed.toString();
   } catch {
     return null;
+  }
+}
+
+export function productWhatsAppText(
+  title: string,
+  status: CommerceStatus,
+): string {
+  switch (status) {
+    case "made_to_order":
+      return `Hola, quiero encargar ${title}.`;
+    case "coming_soon":
+      return `Hola, avisame cuando esté disponible ${title}.`;
+    case "sold_out":
+      return `Hola, consulto por ${title}.`;
+    default:
+      return `Hola, consulta por ${title}.`;
   }
 }
 
