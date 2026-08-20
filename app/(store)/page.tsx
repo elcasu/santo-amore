@@ -1,6 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { Magnetic } from "@/components/motion/magnetic";
+import { MagneticField } from "@/components/motion/magnetic-field";
+import { Reveal } from "@/components/motion/reveal";
 import { ProductCard } from "@/components/product-card";
 import { getProductPurchaseState } from "@/lib/commerce";
 import { getHomePage } from "@/lib/data";
@@ -40,7 +43,6 @@ export default async function HomePage() {
 
       <section className="relative flex min-h-[92vh] items-center">
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute inset-0 z-10 bg-gradient-to-r from-foreground/70 via-foreground/35 to-transparent" />
           {hero.backgroundImage?.src ? (
             <Image
               src={hero.backgroundImage.src}
@@ -51,6 +53,8 @@ export default async function HomePage() {
               sizes="100vw"
             />
           ) : null}
+          <div className="absolute inset-0 z-10 bg-gradient-to-r from-foreground/70 via-foreground/35 to-transparent" />
+          <MagneticField className="z-20" />
         </div>
 
         <div className="relative z-20 mx-auto w-full max-w-[1280px] px-5 py-24 md:px-16">
@@ -60,7 +64,7 @@ export default async function HomePage() {
                 {hero.eyebrow}
               </span>
             ) : null}
-            <h1 className="mb-8 font-display text-[40px] font-bold leading-[1.15] text-white md:text-[64px]">
+            <h1 className="mb-8 animate-fade-rise font-display text-[40px] font-bold leading-[1.15] text-white [animation-delay:60ms] md:text-[64px]">
               {hero.title}
               {hero.titleHighlight ? (
                 <>
@@ -72,26 +76,30 @@ export default async function HomePage() {
               ) : null}
             </h1>
             {hero.subtitle ? (
-              <p className="mb-10 max-w-xl animate-fade-rise font-sans text-lg leading-relaxed text-white/90 [animation-delay:80ms]">
+              <p className="mb-10 max-w-xl animate-fade-rise font-sans text-lg leading-relaxed text-white/90 [animation-delay:120ms]">
                 {hero.subtitle}
               </p>
             ) : null}
-            <div className="flex animate-fade-rise flex-wrap gap-4 [animation-delay:140ms]">
+            <div className="flex animate-fade-rise flex-wrap gap-4 [animation-delay:200ms]">
               {hero.primaryCta ? (
-                <Link
-                  href={hero.primaryCta.href}
-                  className="rounded bg-primary px-8 py-4 font-display text-lg font-semibold text-white shadow-sm transition-transform duration-300 hover:scale-105 hover:bg-primary-container"
-                >
-                  {hero.primaryCta.label}
-                </Link>
+                <Magnetic className="inline-flex" maxPull={6}>
+                  <Link
+                    href={hero.primaryCta.href}
+                    className="rounded bg-primary px-8 py-4 font-display text-lg font-semibold text-white shadow-sm transition-colors duration-300 hover:bg-primary-container"
+                  >
+                    {hero.primaryCta.label}
+                  </Link>
+                </Magnetic>
               ) : null}
               {hero.secondaryCta ? (
-                <Link
-                  href={hero.secondaryCta.href}
-                  className="rounded border-2 border-white bg-white/15 px-8 py-4 font-display text-lg font-semibold text-white transition-all duration-300 hover:bg-white hover:text-foreground"
-                >
-                  {hero.secondaryCta.label}
-                </Link>
+                <Magnetic className="inline-flex" maxPull={6}>
+                  <Link
+                    href={hero.secondaryCta.href}
+                    className="rounded border-2 border-white bg-white/15 px-8 py-4 font-display text-lg font-semibold text-white transition-colors duration-300 hover:bg-white hover:text-foreground"
+                  >
+                    {hero.secondaryCta.label}
+                  </Link>
+                </Magnetic>
               ) : null}
             </div>
           </div>
@@ -100,7 +108,7 @@ export default async function HomePage() {
 
       <section className="bg-background py-24">
         <div className="mx-auto max-w-[1280px] px-5 md:px-16">
-          <div className="mb-16 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <Reveal className="mb-16 flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
               {collections?.title ? (
                 <h2 className="mb-2 font-display text-2xl font-semibold text-foreground md:text-[32px]">
@@ -121,16 +129,16 @@ export default async function HomePage() {
                 {collections.exploreCta.label}
                 <span
                   aria-hidden
-                  className="transition-transform group-hover:translate-x-1"
+                  className="transition-transform duration-300 group-hover:translate-x-1"
                 >
                   →
                 </span>
               </Link>
             ) : null}
-          </div>
+          </Reveal>
 
           <div className="grid auto-rows-auto grid-cols-1 gap-6 md:auto-rows-[360px] md:grid-cols-12">
-            {drops.map((drop) => {
+            {drops.map((drop, index) => {
               const product = drop.product;
               if (!product?.slug) return null;
 
@@ -149,69 +157,76 @@ export default async function HomePage() {
               const imageAlt = product.mainImage?.alt ?? product.title;
 
               return (
-                <Link
+                <Reveal
                   key={drop.id}
-                  href={`/producto/${product.slug}`}
-                  className={`hover-lift group relative min-h-[280px] overflow-hidden rounded-xl bg-surface-container md:min-h-0 ${span}`}
+                  className={`h-full min-h-[280px] md:min-h-0 ${span}`}
+                  delayMs={index * 80}
                 >
-                  <Image
-                    src={imageSrc}
-                    alt={imageAlt}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-foreground/80 via-transparent to-transparent" />
-                  {purchase.badgeLabel ? (
-                    <span className="absolute left-4 top-4 z-10 rounded bg-foreground/90 px-2.5 py-1 font-sans text-[10px] font-bold uppercase tracking-[0.12em] text-white md:left-6 md:top-6">
-                      {purchase.badgeLabel}
-                    </span>
-                  ) : null}
-                  <div className="absolute bottom-8 left-8 text-white">
-                    {label ? (
-                      <span className="mb-2 block font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-primary-fixed-dim">
-                        {label}
+                  <Link
+                    href={`/producto/${product.slug}`}
+                    className="hover-lift group relative block h-full min-h-[280px] overflow-hidden rounded-xl bg-surface-container md:min-h-0"
+                  >
+                    <Image
+                      src={imageSrc}
+                      alt={imageAlt}
+                      fill
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-foreground/80 via-transparent to-transparent" />
+                    {purchase.badgeLabel ? (
+                      <span className="absolute left-4 top-4 z-10 rounded bg-foreground/90 px-2.5 py-1 font-sans text-[10px] font-bold uppercase tracking-[0.12em] text-white md:left-6 md:top-6">
+                        {purchase.badgeLabel}
                       </span>
                     ) : null}
-                    <h3 className="font-display text-2xl font-semibold">
-                      {product.title}
-                    </h3>
-                    {description ? (
-                      <p className="mt-2 max-w-sm font-sans text-sm text-white/70 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                        {description}
-                      </p>
-                    ) : null}
-                  </div>
-                </Link>
+                    <div className="absolute bottom-8 left-8 text-white">
+                      {label ? (
+                        <span className="mb-2 block font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-primary-fixed-dim">
+                          {label}
+                        </span>
+                      ) : null}
+                      <h3 className="font-display text-2xl font-semibold">
+                        {product.title}
+                      </h3>
+                      {description ? (
+                        <p className="mt-2 max-w-sm font-sans text-sm text-white/70 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                          {description}
+                        </p>
+                      ) : null}
+                    </div>
+                  </Link>
+                </Reveal>
               );
             })}
 
             {journal ? (
-              <div className="hover-lift flex flex-col justify-between gap-8 rounded-xl bg-surface-container-high p-8 md:col-span-4">
-                <div>
-                  {journal.eyebrow ? (
-                    <span className="mb-4 block font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-primary">
-                      {journal.eyebrow}
-                    </span>
-                  ) : null}
-                  <h3 className="mb-4 font-display text-2xl font-semibold text-foreground">
-                    {journal.title}
-                  </h3>
-                  {journal.body ? (
-                    <p className="font-sans text-base text-secondary">
-                      {journal.body}
-                    </p>
+              <Reveal className="md:col-span-4" delayMs={drops.length * 80}>
+                <div className="hover-lift flex h-full flex-col justify-between gap-8 rounded-xl bg-surface-container-high p-8">
+                  <div>
+                    {journal.eyebrow ? (
+                      <span className="mb-4 block font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-primary">
+                        {journal.eyebrow}
+                      </span>
+                    ) : null}
+                    <h3 className="mb-4 font-display text-2xl font-semibold text-foreground">
+                      {journal.title}
+                    </h3>
+                    {journal.body ? (
+                      <p className="font-sans text-base text-secondary">
+                        {journal.body}
+                      </p>
+                    ) : null}
+                  </div>
+                  {journal.cta ? (
+                    <Link
+                      href={journal.cta.href}
+                      className="font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-foreground transition-colors hover:text-primary"
+                    >
+                      {journal.cta.label}
+                    </Link>
                   ) : null}
                 </div>
-                {journal.cta ? (
-                  <Link
-                    href={journal.cta.href}
-                    className="font-sans text-[12px] font-bold uppercase tracking-[0.12em] text-foreground transition-colors hover:text-primary"
-                  >
-                    {journal.cta.label}
-                  </Link>
-                ) : null}
-              </div>
+              </Reveal>
             ) : null}
           </div>
         </div>
@@ -220,7 +235,7 @@ export default async function HomePage() {
       {products.length ? (
         <section className="border-t border-outline-variant/40 bg-white py-24">
           <div className="mx-auto max-w-[1280px] px-5 md:px-16">
-            <div className="mb-12 flex items-end justify-between gap-6">
+            <Reveal className="mb-12 flex items-end justify-between gap-6">
               <h2 className="font-display text-2xl font-semibold text-foreground md:text-[32px]">
                 {featuredProducts?.title ?? "Piezas destacadas"}
               </h2>
@@ -232,10 +247,12 @@ export default async function HomePage() {
                   {featuredProducts.viewAllCta.label}
                 </Link>
               ) : null}
-            </div>
+            </Reveal>
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {products.map((product) => (
-                <ProductCard key={product._id} product={product} />
+              {products.map((product, index) => (
+                <Reveal key={product._id} delayMs={index * 90}>
+                  <ProductCard product={product} />
+                </Reveal>
               ))}
             </div>
           </div>

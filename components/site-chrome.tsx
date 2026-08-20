@@ -72,7 +72,7 @@ export function SiteHeader({ locationLabel, countryCode }: ChromeProps) {
             <Link
               key={item.href}
               href={item.href}
-              className="font-sans text-sm text-foreground transition-colors hover:text-primary"
+              className="relative font-sans text-sm text-foreground transition-colors hover:text-primary after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-primary after:transition-transform after:duration-300 after:content-[''] hover:after:scale-x-100 motion-reduce:after:transition-none"
             >
               {item.label}
             </Link>

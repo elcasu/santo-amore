@@ -11,18 +11,22 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <Link
       href={`/producto/${product.slug}`}
-      className="group block transition-transform duration-300 hover:-translate-y-1"
+      className="group block"
     >
-      <div className="relative aspect-square overflow-hidden rounded bg-surface-container">
+      <div className="relative aspect-square overflow-hidden rounded bg-surface-container transition-transform duration-500 ease-out group-hover:-translate-y-1 motion-reduce:transition-none motion-reduce:group-hover:translate-y-0">
         {product.mainImage?.src ? (
           <Image
             src={product.mainImage.src}
             alt={product.mainImage.alt ?? product.title}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
         ) : null}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-foreground/0 transition-colors duration-500 group-hover:bg-foreground/10 motion-reduce:transition-none motion-reduce:group-hover:bg-foreground/0"
+        />
         {purchase.badgeLabel ? (
           <span className="absolute left-3 top-3 rounded bg-foreground/90 px-2.5 py-1 font-sans text-[10px] font-bold uppercase tracking-[0.12em] text-white">
             {purchase.badgeLabel}
