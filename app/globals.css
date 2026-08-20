@@ -67,6 +67,19 @@ body {
   animation: fade-rise 1s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+@keyframes image-settle {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.animate-image-settle {
+  animation: image-settle 1.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(1.25rem);
@@ -90,6 +103,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-rise,
+  .animate-image-settle,
   .reveal,
   .reveal.is-in {
     animation: none;

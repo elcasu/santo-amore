@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { Magnetic } from "@/components/motion/magnetic";
 import { Reveal } from "@/components/motion/reveal";
 import { ProductCard } from "@/components/product-card";
 import { WhatsAppContactCta } from "@/components/whatsapp-contact-cta";
@@ -55,7 +54,7 @@ export default async function HomePage() {
         </div>
       ) : null}
 
-      <section className="relative flex min-h-[calc(100svh-88px)] flex-col justify-end overflow-hidden sm:min-h-[calc(100svh-64px)] md:min-h-[calc(100svh-72px)] lg:mx-auto lg:grid lg:min-h-0 lg:w-full lg:max-w-[1280px] lg:grid-cols-2 lg:items-center lg:justify-normal lg:gap-20 lg:overflow-visible lg:px-16 lg:py-24">
+      <section className="relative flex min-h-[calc(100svh-88px)] flex-col justify-end overflow-hidden sm:min-h-[calc(100svh-64px)] md:min-h-[calc(100svh-72px)] lg:grid lg:w-full lg:grid-cols-2 lg:items-stretch lg:justify-normal">
         {hero.backgroundImage?.src ? (
           <div className="absolute inset-0 lg:hidden">
             <Image
@@ -63,7 +62,7 @@ export default async function HomePage() {
               alt=""
               fill
               priority
-              className="object-cover object-center"
+              className="animate-image-settle object-cover object-center"
               sizes="100vw"
             />
             <div
@@ -73,7 +72,7 @@ export default async function HomePage() {
           </div>
         ) : null}
 
-        <div className="relative z-10 px-5 pb-12 pt-16 md:px-16 lg:px-0 lg:py-0">
+        <div className="relative z-10 px-5 pb-12 pt-16 md:px-16 lg:flex lg:flex-col lg:justify-center lg:px-16 lg:py-0 xl:px-24">
           {hero.eyebrow ? (
             <span className="mb-5 block animate-fade-rise font-sans text-sm text-secondary">
               {hero.eyebrow}
@@ -95,35 +94,31 @@ export default async function HomePage() {
           ) : null}
           <div className="flex animate-fade-rise flex-wrap gap-4 [animation-delay:200ms]">
             {hero.primaryCta ? (
-              <Magnetic className="inline-flex" maxPull={6}>
-                <Link
-                  href={hero.primaryCta.href}
-                  className="rounded-sm bg-primary px-7 py-3.5 font-display text-lg font-medium text-on-primary shadow-sm transition-colors duration-300 hover:bg-primary-container"
-                >
-                  {hero.primaryCta.label}
-                </Link>
-              </Magnetic>
+              <Link
+                href={hero.primaryCta.href}
+                className="rounded-sm bg-primary px-7 py-3.5 font-display text-lg font-medium text-on-primary shadow-sm transition-colors duration-300 hover:bg-primary-container"
+              >
+                {hero.primaryCta.label}
+              </Link>
             ) : null}
             {hero.secondaryCta ? (
-              <Magnetic className="inline-flex" maxPull={6}>
-                <Link
-                  href={hero.secondaryCta.href}
-                  className="rounded-sm border border-foreground/20 bg-background/90 px-7 py-3.5 font-display text-lg font-medium text-foreground backdrop-blur-sm transition-colors duration-300 hover:border-primary hover:text-primary lg:bg-transparent lg:backdrop-blur-none"
-                >
-                  {hero.secondaryCta.label}
-                </Link>
-              </Magnetic>
+              <Link
+                href={hero.secondaryCta.href}
+                className="rounded-sm border border-foreground/20 bg-background/90 px-7 py-3.5 font-display text-lg font-medium text-foreground backdrop-blur-sm transition-colors duration-300 hover:border-primary hover:text-primary lg:bg-transparent lg:backdrop-blur-none"
+              >
+                {hero.secondaryCta.label}
+              </Link>
             ) : null}
           </div>
         </div>
 
-        <div className="relative hidden aspect-4/5 overflow-hidden rounded-sm bg-surface-container lg:block">
+        <div className="relative hidden h-full min-h-[calc(100svh-72px)] overflow-hidden bg-surface-container lg:block">
           {hero.backgroundImage?.src ? (
             <Image
               src={hero.backgroundImage.src}
               alt={hero.backgroundImage.alt || "Pieza Santo Amore"}
               fill
-              className="object-cover"
+              className="animate-image-settle object-cover"
               sizes="50vw"
             />
           ) : null}
