@@ -27,19 +27,38 @@ export function mimeFromFilename(filename: string): string | undefined {
   return EXT_TO_MIME[base.slice(dot + 1).toLowerCase()];
 }
 
-/**
- * Android (sobre todo fotos bajadas de WhatsApp) a menudo entrega JPEG/PNG
- * con MIME vacío o application/octet-stream. Sanity exige image/* y descarta
- * el archivo en silencio.
- */
-export function ensureImageFileMime(file: File): File {
-  if (file.type.toLowerCase().startsWith("image/")) return file;
+export function needsImageMimeFix(file: Pick<File, "type" | "name">): string | undefined {
+  if (file.type.toLowerCase().startsWith("image/")) return undefined;
 
   const type = file.type.toLowerCase();
-  if (type && !UNTRUSTWORTHY_MIME.has(type)) return file;
+  if (type && !UNTRUSTWORTHY_MIME.has(type)) return undefined;
 
-  const mime = mimeFromFilename(file.name);
+  return mimeFromFilename(file.name);
+}
+
+function stampFileMime(file: File, mime: string): boolean {
+  try {
+    Object.defineProperty(file, "type", {
+      configurable: true,
+      enumerable: true,
+      value: mime,
+    });
+    return file.type.toLowerCase() === mime;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Android (fotos bajadas de WhatsApp) suele entregar JPEG/PNG con MIME vacío
+ * o application/octet-stream. Sanity exige image/* y, si no matchea, descarta
+ * el archivo en silencio. Preferimos sellar el File original: en Chrome Android
+ * asignar input.files = DataTransfer a veces no pega.
+ */
+export function ensureImageFileMime(file: File): File {
+  const mime = needsImageMimeFix(file);
   if (!mime) return file;
+  if (stampFileMime(file, mime)) return file;
 
   return new File([file], file.name, {
     type: mime,
@@ -58,8 +77,7 @@ export function installImageMimeFix(): () => void {
     if (
       !(input instanceof HTMLInputElement) ||
       input.type !== "file" ||
-      !input.files?.length ||
-      typeof DataTransfer === "undefined"
+      !input.files?.length
     ) {
       return;
     }
@@ -67,6 +85,7 @@ export function installImageMimeFix(): () => void {
     const original = Array.from(input.files);
     const fixed = original.map(ensureImageFileMime);
     if (fixed.every((file, index) => file === original[index])) return;
+    if (typeof DataTransfer === "undefined") return;
 
     const transfer = new DataTransfer();
     for (const file of fixed) transfer.items.add(file);

@@ -83,6 +83,8 @@ export const product = defineType({
       name: "mainImage",
       title: "Imagen principal",
       type: "image",
+      description:
+        "Si la foto viene de WhatsApp y en el teléfono no queda seleccionada, guardala en Galería y elegila de ahí.",
       options: { hotspot: true },
       fields: [productImageAltField()],
     }),
